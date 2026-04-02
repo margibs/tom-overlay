@@ -153,7 +153,7 @@
       name: "Gold Dust",
       slug: "gold_dust",
       yield: 3,
-      time: null, // TODO: confirm craft time
+      time: 50,
       ingredients: [{ slug: "mineral", qty: 60 }],
     },
   ];
