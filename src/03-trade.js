@@ -1,6 +1,5 @@
   // --- Trade Calculator ---
   const WM_RATES = { food: 0.25, wood: 0.3125, mineral: 0.3125 };
-  let goldWmRate = parseFloat(localStorage.getItem("tom-gold-rate")) || 800;
 
   // All tradeable items: base materials + crafted products
   const TRADE_ITEMS = [
@@ -13,8 +12,6 @@
   ];
 
   function calcValue(slug, qty) {
-    if (slug === "gold_coin")
-      return { wm: qty * goldWmRate, base: { "gold coin": qty }, craftSecs: 0 };
     if (WM_RATES[slug] !== undefined)
       return { wm: qty * WM_RATES[slug], base: { [slug]: qty }, craftSecs: 0 };
     const recipe = recipeBySlug[slug];

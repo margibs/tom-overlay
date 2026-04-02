@@ -82,29 +82,10 @@
             <select id="tom-trade-give-item" class="tom-trade-select">${opts}</select>
             <input id="tom-trade-give-qty" class="tom-trade-input" type="number" min="1" value="100">
           </div>
-          <div class="tom-trade-gold-row">
-            <span class="tom-trade-gold-label">⚙ Gold value:</span>
-            <input id="tom-trade-gold-rate" class="tom-trade-input" type="number" min="1" value="${goldWmRate}" style="width:56px">
-            <span class="tom-trade-gold-label">wm/coin</span>
-            <button id="tom-trade-gold-set" class="tom-trade-gold-btn">Set</button>
-          </div>
-          <div class="tom-trade-gold-ref">Ref: ~781 (charcoal trade) · ~833 (salt trade) · ~200 (spear market)</div>
           <button id="tom-trade-eval" class="tom-trade-btn">Evaluate</button>
           <div id="tom-trade-result"></div>
         </div>
       `;
-
-      document
-        .getElementById("tom-trade-gold-set")
-        .addEventListener("click", () => {
-          const val = parseFloat(
-            document.getElementById("tom-trade-gold-rate").value,
-          );
-          if (val > 0) {
-            goldWmRate = val;
-            localStorage.setItem("tom-gold-rate", val);
-          }
-        });
 
       document
         .getElementById("tom-trade-eval")
