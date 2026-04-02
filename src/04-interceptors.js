@@ -29,16 +29,6 @@
               if (prev && t !== prev) tickInterval = t - prev;
               window._tomLastFoodTime = t;
             }
-            // Population rate
-            const r = json.population_remainder;
-            const prevR = window._tomLastRemainder;
-            const prevRT = window._tomLastRemainderTime;
-            const now = Date.now() / 1000;
-            if (prevR !== undefined && r > prevR && prevRT) {
-              popRatePerSec = (r - prevR) / (now - prevRT);
-            }
-            window._tomLastRemainder = r;
-            window._tomLastRemainderTime = now;
             notifyListeners(json);
           }
         })
@@ -83,16 +73,6 @@
               }
               window._tomLastFoodTime = t;
             }
-            const r = json.population_remainder;
-            const prev = window._tomLastRemainder;
-            const prevTime = window._tomLastRemainderTime;
-            const now = Date.now() / 1000;
-            if (prev !== undefined && r > prev && prevTime) {
-              const elapsed = now - prevTime;
-              popRatePerSec = (r - prev) / elapsed;
-            }
-            window._tomLastRemainder = r;
-            window._tomLastRemainderTime = now;
             notifyListeners(json);
           }
         } catch (e) {}
