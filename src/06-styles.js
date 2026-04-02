@@ -12,7 +12,7 @@
         position: fixed;
         left: 8px;
         top: 110px;
-        width: 300px;
+        width: 480px;
         min-width: 200px;
         max-height: 90vh;
         background: rgba(0, 0, 0, 0.88);
