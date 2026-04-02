@@ -158,17 +158,27 @@
     },
   ];
 
-  // Tribe-locked recipes: these exist in the recipe list for reference/value calc
-  // but the current user's tribe cannot craft them.
+  // Which tribe exclusively crafts each recipe.
   // TODO: confirm exact in-game tribe name spelling for each entry
-  const TRIBE_LOCKED = new Set([
-    "salt",           // Sugbuanon exclusive
-    "gold_dust",      // Taga Ilog exclusive
-    "coconut_charcoal", // Tausog exclusive
-  ]);
+  const TRIBE_EXCLUSIVE = {
+    "salt":             "sugbuanon",  // TODO: confirm tribe name
+    "gold_dust":        "taga_ilog",  // TODO: confirm tribe name
+    "coconut_charcoal": "tausug",     // TODO: confirm tribe name
+  };
+
+  // Recipes the current user's tribe cannot craft (computed from userTribe).
+  // Falls back to locking all tribe-exclusive recipes if tribe is not yet detected.
+  function getTribeLocked() {
+    if (!userTribe) return new Set(Object.keys(TRIBE_EXCLUSIVE));
+    return new Set(
+      Object.entries(TRIBE_EXCLUSIVE)
+        .filter(([, owner]) => owner !== userTribe)
+        .map(([slug]) => slug)
+    );
+  }
 
   function canCraftRecipe(slug) {
-    return !TRIBE_LOCKED.has(slug);
+    return !getTribeLocked().has(slug);
   }
 
   // Lookup recipe by product slug

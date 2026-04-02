@@ -26,6 +26,10 @@
   }
 
   function parseTownData(data) {
+    if (data.owner?.tribe && !userTribe) {
+      userTribe = data.owner.tribe.toLowerCase();
+    }
+
     const summary = {
       name: data.name,
       population:

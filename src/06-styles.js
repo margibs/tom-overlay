@@ -185,6 +185,17 @@
         margin-bottom: 6px;
         border-left: 3px solid #a855f7;
       }
+      .tom-craft-card.tom-craft-locked {
+        opacity: 0.55;
+        border-left-color: #6b7280;
+      }
+      .tom-tribe-lock-badge {
+        font-size: 9px;
+        color: #f59e0b;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 4px;
+      }
       .tom-craft-header {
         display: flex;
         justify-content: space-between;

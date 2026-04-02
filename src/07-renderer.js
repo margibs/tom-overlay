@@ -447,7 +447,10 @@
     }
 
     let craftHtml = "";
+    const tribeLocked = getTribeLocked();
     for (const recipe of CRAFT_RECIPES) {
+      const isLocked = tribeLocked.has(recipe.slug);
+      const exclusiveTribe = TRIBE_EXCLUSIVE[recipe.slug];
       const baseCost = resolveBaseCost(recipe);
       const steps = getCraftSteps(recipe);
       const canCraft = maxCraftable(recipe, craftInventory);
@@ -455,13 +458,17 @@
       const craftSecs = totalCraftTime(recipe);
       const craftWm = craftSecs / 60;
 
-      craftHtml += `<div class="tom-craft-card">`;
+      craftHtml += `<div class="tom-craft-card${isLocked ? ' tom-craft-locked' : ''}">`;
       // Header
       const owned = craftInventory[recipe.slug] || 0;
       craftHtml += `<div class="tom-craft-header">
         <span class="tom-craft-name">${recipe.name} <span class="tom-craft-yield">(${recipe.yield}x)</span> — <span style="color:#fff">${owned.toLocaleString()}</span></span>
         <span class="tom-craft-time">${recipe.time != null ? recipe.time + 's' : 'TBA'}</span>
       </div>`;
+      if (isLocked) {
+        const tribeLabel = exclusiveTribe ? exclusiveTribe.replace(/_/g, ' ') : 'other tribe';
+        craftHtml += `<div class="tom-tribe-lock-badge">Tribe Locked — ${tribeLabel} only</div>`;
+      }
 
       // Craft steps (only for recipes with intermediate ingredients)
       if (steps.length > 0) {
