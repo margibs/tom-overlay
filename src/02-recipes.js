@@ -186,15 +186,15 @@
   for (const r of CRAFT_RECIPES) recipeBySlug[r.slug] = r;
 
   // Resolve base material cost for one craft of a recipe.
-  // Tribe-locked ingredients are treated as external (not resolved further).
+  // Always resolves through the full recipe chain (including tribe-locked steps)
+  // to show the true raw material equivalent. getCraftSteps handles tribe-lock display.
   function resolveBaseCost(recipe) {
     const base = {};
     for (const ing of recipe.ingredients) {
-      if (BASE_MATERIALS.has(ing.slug) || !canCraftRecipe(ing.slug)) {
+      const sub = recipeBySlug[ing.slug];
+      if (BASE_MATERIALS.has(ing.slug) || !sub) {
         base[ing.slug] = (base[ing.slug] || 0) + ing.qty;
       } else {
-        const sub = recipeBySlug[ing.slug];
-        if (!sub) continue;
         const craftsNeeded = Math.ceil(ing.qty / sub.yield);
         const subBase = resolveBaseCost(sub);
         for (const [mat, amt] of Object.entries(subBase)) {
