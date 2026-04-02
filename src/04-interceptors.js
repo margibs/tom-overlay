@@ -45,6 +45,19 @@
         .catch(() => {});
     }
 
+    if (/\/buildings\/\d+\/trades/.test(url)) {
+      response
+        .clone()
+        .json()
+        .then((json) => {
+          if (json && json.items && json.meta) {
+            lastMarketTrades = json;
+            renderAll();
+          }
+        })
+        .catch(() => {});
+    }
+
     return response;
   };
 
@@ -136,6 +149,20 @@
               buildingQueueMax = parseInt(m[2]);
               renderAll();
             }
+          }
+        } catch (e) {}
+      });
+    } else if (
+      this._tomUrl &&
+      /\/buildings\/\d+\/trades/.test(this._tomUrl) &&
+      (this._tomMethod || "").toUpperCase() === "GET"
+    ) {
+      this.addEventListener("load", function () {
+        try {
+          const json = JSON.parse(this.responseText);
+          if (json && json.items && json.meta) {
+            lastMarketTrades = json;
+            renderAll();
           }
         } catch (e) {}
       });
