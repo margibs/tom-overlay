@@ -197,28 +197,24 @@
     // Food economy
     const netSign = foodNet > 0 ? "+" : "";
     const netColor = foodNet > 0 ? "#4ade80" : foodNet < 0 ? "#ef4444" : "#fff";
-    let foodTimeEstimate = "";
+    let foodTimeLabel = "";
     if (foodNet < 0) {
       const secs = (resources.food / Math.abs(foodNet)) * tickInterval;
       const hrs = secs / 3600;
-      foodTimeEstimate = hrs < 1
-        ? ` <span style="color:#ef4444">runs out in ${Math.round(hrs * 60)}m</span>`
-        : ` <span style="color:#ef4444">runs out in ${hrs.toFixed(1)}h</span>`;
-    } else if (foodNet > 0) {
-      if (resources.food >= capacities.food) {
-        foodTimeEstimate = ` <span style="color:#4ade80">FULL</span>`;
-      } else {
-        const secs = ((capacities.food - resources.food) / foodNet) * tickInterval;
-        const hrs = secs / 3600;
-        foodTimeEstimate = hrs < 1
-          ? ` <span style="color:#4ade80">full in ${Math.round(hrs * 60)}m</span>`
-          : ` <span style="color:#4ade80">full in ${hrs.toFixed(1)}h</span>`;
-      }
+      foodTimeLabel = hrs < 1 ? `${Math.round(hrs * 60)}m` : `${hrs.toFixed(1)}h`;
+    } else if (foodNet > 0 && resources.food < capacities.food) {
+      const secs = ((capacities.food - resources.food) / foodNet) * tickInterval;
+      const hrs = secs / 3600;
+      foodTimeLabel = hrs < 1 ? `${Math.round(hrs * 60)}m` : `${hrs.toFixed(1)}h`;
     }
-    const foodEconTooltip = `Consumption: ${summary.population} commoners + ${summary.troops}×2 troops = ${consumption.toLocaleString()}`;
-    html += `<div style="padding:2px 8px;font-size:12px;color:rgba(255,255,255,0.7)" title="${foodEconTooltip}">
-      Food <span style="color:${netColor};font-weight:600">${netSign}${foodNet.toLocaleString()}/tick</span>
-      <span style="color:rgba(255,255,255,0.4)">(${production.food.toLocaleString()} prod − ${consumption.toLocaleString()} cons)</span>${foodTimeEstimate}
+    const foodEconTooltip = `${summary.population} commoners + ${summary.troops}×2 troops = ${consumption.toLocaleString()}`;
+    html += `<div class="tom-section" style="border-top:1px solid rgba(255,255,255,0.05);padding-top:4px">
+      <span class="tom-stat" title="${foodEconTooltip}">Cons <span class="tom-stat-value">${consumption.toLocaleString()}</span></span>
+      <span class="tom-stat">Prod <span class="tom-stat-value">${production.food.toLocaleString()}</span></span>
+      <span class="tom-stat">Net <span class="tom-stat-value" style="color:${netColor}">${netSign}${foodNet.toLocaleString()}/tick</span></span>
+      ${foodNet < 0 && foodTimeLabel ? `<span class="tom-stat">Depletes <span class="tom-stat-value" style="color:#ef4444">${foodTimeLabel}</span></span>` : ""}
+      ${foodNet > 0 && resources.food >= capacities.food ? `<span class="tom-stat">Storage <span class="tom-stat-value" style="color:#4ade80">FULL</span></span>` : ""}
+      ${foodNet > 0 && resources.food < capacities.food && foodTimeLabel ? `<span class="tom-stat">Full in <span class="tom-stat-value" style="color:#4ade80">${foodTimeLabel}</span></span>` : ""}
     </div>`;
 
     // Resources
