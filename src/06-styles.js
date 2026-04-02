@@ -405,6 +405,7 @@
       .tom-market-badge-fair  { background: rgba(251,191,36,0.15);  color: #fbbf24; }
       .tom-market-badge-bad   { background: rgba(239,68,68,0.15);   color: #ef4444; }
       .tom-market-badge-unknown { background: rgba(255,255,255,0.08); color: #888; }
+      .tom-market-badge-sub { display: block; font-size: 8px; font-weight: 400; opacity: 0.7; }
       .tom-market-sides { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
       .tom-market-sides > div { display: flex; align-items: center; gap: 4px; }
       .tom-market-item { font-size: 11px; color: #e0e0e0; flex: 1; }
