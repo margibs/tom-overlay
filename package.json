@@ -1,12 +1,13 @@
 {
   "name": "tribes-of-malaya-overlay",
-  "version": "1.2.4",
+  "version": "1.2.8",
   "description": "Build tooling for the Tribes of Malaya browser overlay userscript",
   "private": true,
   "scripts": {
     "build": "node build.js",
     "build:min": "node build.js --minify",
-    "watch": "node build.js --watch"
+    "watch": "node build.js --watch",
+    "release": "git tag v$npm_package_version && git push origin v$npm_package_version"
   },
   "devDependencies": {
     "terser": "^5.39.0"
