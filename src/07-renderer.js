@@ -10,6 +10,7 @@
             <span class="tom-tab active" data-tab="overview">Overview</span>
             <span class="tom-tab" data-tab="crafting">Crafting</span>
             <span class="tom-tab" data-tab="trade">Trade</span>
+            <span class="tom-tab" data-tab="market">Market</span>
           </div>
           <span class="tom-version">v${VERSION}</span>
           <span class="tom-toggle" id="tom-toggle">&blacktriangledown;</span>
@@ -18,6 +19,7 @@
           <div id="tom-tab-overview" class="tom-tab-content active"></div>
           <div id="tom-tab-crafting" class="tom-tab-content"></div>
           <div id="tom-tab-trade" class="tom-tab-content"></div>
+          <div id="tom-tab-market" class="tom-tab-content"></div>
         </div>
       `;
       document.body.appendChild(panel);
@@ -530,6 +532,74 @@
     }
     applySearch(prevSearch);
     searchEl.addEventListener("input", (e) => applySearch(e.target.value));
+    renderMarketTab();
+  }
+
+  function renderMarketTab() {
+    const el = document.getElementById("tom-tab-market");
+    if (!el) return;
+
+    if (!lastMarketTrades) {
+      el.innerHTML = `<div class="tom-section"><div class="tom-market-empty">Open a market building to load listings.</div></div>`;
+      return;
+    }
+
+    const { items, meta } = lastMarketTrades;
+
+    // Evaluate and sort by ratio descending
+    const rows = items
+      .map((trade) => {
+        const getVal = calcValue(trade.offer_item, trade.offer_quantity);
+        const giveVal = calcValue(trade.taker_item, trade.taker_quantity);
+        const ratio =
+          getVal && giveVal && giveVal.wm > 0
+            ? getVal.wm / giveVal.wm
+            : null;
+        return { trade, getVal, giveVal, ratio };
+      })
+      .sort((a, b) => {
+        if (a.ratio === null && b.ratio === null) return 0;
+        if (a.ratio === null) return 1;
+        if (b.ratio === null) return -1;
+        return b.ratio - a.ratio;
+      });
+
+    const fmtSlug = (slug) =>
+      slug.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+
+    let html = `<div class="tom-section">`;
+    html += `<div class="tom-section-title">Market Listings <span style="color:#555;font-weight:400;font-size:10px">Page ${meta.current_page}/${meta.total_pages}</span></div>`;
+
+    for (const { trade, getVal, giveVal, ratio } of rows) {
+      let badgeClass, badgeText;
+      if (ratio === null) {
+        badgeClass = "tom-market-badge-unknown";
+        badgeText = "?";
+      } else if (ratio >= 1.0) {
+        badgeClass = "tom-market-badge-good";
+        badgeText = ratio.toFixed(2) + "x";
+      } else if (ratio >= 0.8) {
+        badgeClass = "tom-market-badge-fair";
+        badgeText = ratio.toFixed(2) + "x";
+      } else {
+        badgeClass = "tom-market-badge-bad";
+        badgeText = ratio.toFixed(2) + "x";
+      }
+
+      const getWm = getVal ? Math.round(getVal.wm) : "?";
+      const giveWm = giveVal ? Math.round(giveVal.wm) : "?";
+
+      html += `<div class="tom-market-row">
+        <span class="tom-market-badge ${badgeClass}">${badgeText}</span>
+        <div class="tom-market-sides">
+          <div><span class="tom-trade-side tom-trade-get">GET</span> <span class="tom-market-item">${trade.offer_quantity.toLocaleString()} ${fmtSlug(trade.offer_item)}</span> <span class="tom-market-wm">${getWm} wm</span></div>
+          <div><span class="tom-trade-side tom-trade-give">GIVE</span> <span class="tom-market-item">${trade.taker_quantity.toLocaleString()} ${fmtSlug(trade.taker_item)}</span> <span class="tom-market-wm">${giveWm} wm</span></div>
+        </div>
+      </div>`;
+    }
+
+    html += `</div>`;
+    el.innerHTML = html;
   }
 
   // --- Drag Logic ---
