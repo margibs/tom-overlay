@@ -37,8 +37,6 @@
         data.population,
       populationCapacity: data.population_capacity,
       morale: data.morale,
-      populationRemainder: data.population_remainder || 0,
-      populationRemainderTime: Date.now() / 1000,
       troopsCapacity: data.troops_capacity || 0,
       troops: data.populations
         .filter((p) => p.type !== "commoner")
