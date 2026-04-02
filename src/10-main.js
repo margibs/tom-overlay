@@ -76,16 +76,6 @@
         lastParsed,
       );
 
-      // Update population countdown
-      const el = document.getElementById("tom-pop-countdown");
-      if (el && lastParsed && popRatePerSec > 0) {
-        const s = lastParsed.summary;
-        const elapsed = Date.now() / 1000 - s.populationRemainderTime;
-        const estimated = s.populationRemainder + popRatePerSec * elapsed;
-        const secsLeft = Math.max(0, (1 - estimated) / popRatePerSec);
-        el.textContent = formatCountdown(Math.round(secsLeft));
-      }
-
       renderActiveCraftingQueue();
     }, 1000);
   });
