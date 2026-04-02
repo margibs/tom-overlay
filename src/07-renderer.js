@@ -568,6 +568,12 @@
     const el = document.getElementById("tom-tab-market");
     if (!el) return;
 
+    // Remember which details are expanded before re-render
+    const expandedIds = new Set();
+    el.querySelectorAll('[id^="tom-market-detail-"]').forEach((d) => {
+      if (d.style.display !== "none") expandedIds.add(d.id);
+    });
+
     if (!lastMarketTrades) {
       el.innerHTML = `<div class="tom-section"><div class="tom-market-empty">Open a market building to load listings.</div></div>`;
       return;
@@ -666,6 +672,12 @@
 
     html += `</div>`;
     el.innerHTML = html;
+
+    // Restore expanded details
+    expandedIds.forEach((id) => {
+      const d = document.getElementById(id);
+      if (d) d.style.display = "block";
+    });
   }
 
   // --- Drag Logic ---
