@@ -1,3 +1,5 @@
+  const VERSION = "1.2.1"; // keep in sync with @version in 00-header.js
+
   let townData = null;
   let tickInterval = 300; // seconds; updated dynamically from last_food_production_time
   let popRatePerSec = 0; // population_remainder units per second; measured from API deltas

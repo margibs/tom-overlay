@@ -77,6 +77,12 @@
         padding: 6px 8px;
         border-radius: 0 4px 4px 0;
       }
+      .tom-version {
+        font-size: 9px;
+        opacity: 0.35;
+        margin-right: 6px;
+        letter-spacing: 0.03em;
+      }
       .tom-toggle {
         font-size: 14px;
         cursor: pointer;

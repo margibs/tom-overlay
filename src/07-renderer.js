@@ -11,6 +11,7 @@
             <span class="tom-tab" data-tab="crafting">Crafting</span>
             <span class="tom-tab" data-tab="trade">Trade</span>
           </div>
+          <span class="tom-version">v${VERSION}</span>
           <span class="tom-toggle" id="tom-toggle">&blacktriangledown;</span>
         </div>
         <div id="tom-overlay-body">

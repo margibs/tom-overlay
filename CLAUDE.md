@@ -10,6 +10,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 A Tampermonkey userscript that overlays game data on [Tribes of Malaya](https://war.add.ph/my/town/*). It intercepts the game's API responses and renders an overlay panel with tabs for town overview, crafting analysis, and trade evaluation.
 
+## Versioning
+
+When bumping the version, update **two places**:
+1. `src/00-header.js` — `@version` line
+2. `src/01-state.js` — `const VERSION` constant (displayed in the overlay header)
+
 ## Build Commands
 
 ```bash
