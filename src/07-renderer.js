@@ -180,12 +180,45 @@
       ? `${queueUsed}/${buildingQueueMax}`
       : `${queueUsed}`;
     const queueFull = buildingQueueMax && queueUsed >= buildingQueueMax;
+    const consumption = summary.population + summary.troops * 2;
+    const foodNet = production.food - consumption;
+    const isGrowing = foodNet > 0;
+    const growthColor = isGrowing ? "#4ade80" : "#ef4444";
+    const growthLabel = isGrowing ? "Growing" : "Halted";
+    const growthTooltip = `Prod ${production.food.toLocaleString()} vs Cons ${consumption.toLocaleString()} (${summary.population} + ${summary.troops}×2)`;
     html += `<div class="tom-section">
       <span class="tom-stat">Pop <span class="tom-stat-value">${summary.population}/${summary.populationCapacity}</span></span>
       <span class="tom-stat">Troops <span class="tom-stat-value">${summary.troops}/${summary.troopsCapacity}</span></span>
       <span class="tom-stat">Morale <span class="tom-stat-value">${summary.morale}%</span></span>
       <span class="tom-stat">Queue <span class="tom-stat-value" style="color:${queueFull ? "#ef4444" : "#fff"}">${queueLabel}${queueFull ? " FULL" : ""}</span></span>
-      <span class="tom-stat">Next pop <span class="tom-stat-value" id="tom-pop-countdown">--:--</span></span>
+      <span class="tom-stat" title="${growthTooltip}">Growth <span class="tom-stat-value" style="color:${growthColor}">${growthLabel}</span></span>
+    </div>`;
+
+    // Food economy
+    const netSign = foodNet > 0 ? "+" : "";
+    const netColor = foodNet > 0 ? "#4ade80" : foodNet < 0 ? "#ef4444" : "#fff";
+    let foodTimeEstimate = "";
+    if (foodNet < 0) {
+      const secs = (resources.food / Math.abs(foodNet)) * tickInterval;
+      const hrs = secs / 3600;
+      foodTimeEstimate = hrs < 1
+        ? ` <span style="color:#ef4444">runs out in ${Math.round(hrs * 60)}m</span>`
+        : ` <span style="color:#ef4444">runs out in ${hrs.toFixed(1)}h</span>`;
+    } else if (foodNet > 0) {
+      if (resources.food >= capacities.food) {
+        foodTimeEstimate = ` <span style="color:#4ade80">FULL</span>`;
+      } else {
+        const secs = ((capacities.food - resources.food) / foodNet) * tickInterval;
+        const hrs = secs / 3600;
+        foodTimeEstimate = hrs < 1
+          ? ` <span style="color:#4ade80">full in ${Math.round(hrs * 60)}m</span>`
+          : ` <span style="color:#4ade80">full in ${hrs.toFixed(1)}h</span>`;
+      }
+    }
+    const foodEconTooltip = `Consumption: ${summary.population} commoners + ${summary.troops}×2 troops = ${consumption.toLocaleString()}`;
+    html += `<div style="padding:2px 8px;font-size:12px;color:rgba(255,255,255,0.7)" title="${foodEconTooltip}">
+      Food <span style="color:${netColor};font-weight:600">${netSign}${foodNet.toLocaleString()}/tick</span>
+      <span style="color:rgba(255,255,255,0.4)">(${production.food.toLocaleString()} prod − ${consumption.toLocaleString()} cons)</span>${foodTimeEstimate}
     </div>`;
 
     // Resources
