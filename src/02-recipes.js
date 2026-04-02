@@ -145,7 +145,7 @@
       yield: 1,
       time: 90,
       ingredients: [
-        { slug: "food", qty: 500 },
+        { slug: "food", qty: 5000 },
         { slug: "salt", qty: 1 },
       ],
     },
