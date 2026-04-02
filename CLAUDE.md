@@ -12,21 +12,35 @@ A Tampermonkey userscript that overlays game data on [Tribes of Malaya](https://
 
 ## Versioning
 
-When bumping the version, update **two places**:
+When bumping the version, update **three places**:
 1. `src/00-header.js` — `@version` line
 2. `src/01-state.js` — `const VERSION` constant (displayed in the overlay header)
+3. `package.json` — `"version"` field
 
 ## Build Commands
 
 ```bash
 npm run build        # concatenate src/ → tribes-of-malaya-overlay.user.js
-npm run build:min    # same but minified via terser (~46KB vs ~77KB)
+npm run build:min    # same but minified via terser (~51KB vs ~83KB)
 npm run watch        # auto-rebuild on src/ file changes
+npm run release      # git tag vX.Y.Z + push tag → triggers GitHub Actions release
 ```
 
 **Deploy:** paste the contents of `tribes-of-malaya-overlay.user.js` into Tampermonkey.
 
 After editing any `src/` file, always run `npm run build` before testing in the browser.
+
+## Releasing
+
+After bumping the version in all three places, commit and push to main, then:
+
+```bash
+npm run release
+```
+
+This creates a git tag (`vX.Y.Z` from `package.json` version) and pushes it to origin. The push triggers a GitHub Actions workflow (`.github/workflows/release.yml`) that builds the minified script and creates a GitHub Release with the `.user.js` file attached.
+
+To revert to a previous version: download it from the [Releases page](https://github.com/margibs/tom-overlay/releases) or run `git checkout v1.2.7 -- tribes-of-malaya-overlay.user.js`.
 
 ## Source Layout
 
