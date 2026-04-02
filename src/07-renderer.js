@@ -459,7 +459,7 @@
       const owned = craftInventory[recipe.slug] || 0;
       craftHtml += `<div class="tom-craft-header">
         <span class="tom-craft-name">${recipe.name} <span class="tom-craft-yield">(${recipe.yield}x)</span> — <span style="color:#fff">${owned.toLocaleString()}</span></span>
-        <span class="tom-craft-time">${recipe.time}s</span>
+        <span class="tom-craft-time">${recipe.time != null ? recipe.time + 's' : 'TBA'}</span>
       </div>`;
 
       // Craft steps (only for recipes with intermediate ingredients)

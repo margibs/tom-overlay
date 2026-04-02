@@ -1,5 +1,5 @@
   // --- Crafting Recipes ---
-  const BASE_MATERIALS = new Set(["food", "wood", "mineral", "gold_dust"]);
+  const BASE_MATERIALS = new Set(["food", "wood", "mineral"]);
 
   const CRAFT_RECIPES = [
     {
@@ -148,6 +148,13 @@
         { slug: "food", qty: 500 },
         { slug: "salt", qty: 1 },
       ],
+    },
+    {
+      name: "Gold Dust",
+      slug: "gold_dust",
+      yield: 3,
+      time: null, // TBA
+      ingredients: [{ slug: "mineral", qty: 60 }],
     },
   ];
 
