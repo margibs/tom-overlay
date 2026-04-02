@@ -153,14 +153,19 @@
       name: "Gold Dust",
       slug: "gold_dust",
       yield: 3,
-      time: null, // TBA
+      time: null, // TODO: confirm craft time
       ingredients: [{ slug: "mineral", qty: 60 }],
     },
   ];
 
   // Tribe-locked recipes: these exist in the recipe list for reference/value calc
-  // but the current user's tribe cannot craft them
-  const TRIBE_LOCKED = new Set(["salt"]); // tausug cannot craft salt
+  // but the current user's tribe cannot craft them.
+  // TODO: confirm exact in-game tribe name spelling for each entry
+  const TRIBE_LOCKED = new Set([
+    "salt",           // Sugbuanon exclusive
+    "gold_dust",      // Taga Ilog exclusive
+    "coconut_charcoal", // Tausog exclusive
+  ]);
 
   function canCraftRecipe(slug) {
     return !TRIBE_LOCKED.has(slug);
