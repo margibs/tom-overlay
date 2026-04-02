@@ -384,6 +384,31 @@
       }
       .tom-aq-label { color: #ccc; flex: 1; margin-right: 8px; }
       .tom-aq-time { color: #fbbf24; font-weight: 700; font-variant-numeric: tabular-nums; }
+      .tom-market-empty { color: #555; font-size: 11px; padding: 8px 0; }
+      .tom-market-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 5px 0;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+      }
+      .tom-market-badge {
+        min-width: 44px;
+        text-align: center;
+        font-size: 10px;
+        font-weight: 700;
+        padding: 2px 4px;
+        border-radius: 4px;
+        flex-shrink: 0;
+      }
+      .tom-market-badge-good  { background: rgba(74,222,128,0.15);  color: #4ade80; }
+      .tom-market-badge-fair  { background: rgba(251,191,36,0.15);  color: #fbbf24; }
+      .tom-market-badge-bad   { background: rgba(239,68,68,0.15);   color: #ef4444; }
+      .tom-market-badge-unknown { background: rgba(255,255,255,0.08); color: #888; }
+      .tom-market-sides { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
+      .tom-market-sides > div { display: flex; align-items: center; gap: 4px; }
+      .tom-market-item { font-size: 11px; color: #e0e0e0; flex: 1; }
+      .tom-market-wm   { font-size: 10px; color: #666; flex-shrink: 0; }
     `;
     document.head.appendChild(style);
   }
