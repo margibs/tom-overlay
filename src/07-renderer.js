@@ -581,23 +581,13 @@
 
     const { items, meta } = lastMarketTrades;
 
-    // Evaluate and sort by ratio descending
-    const rows = items
-      .map((trade) => {
-        const getVal = calcValue(trade.offer_item, trade.offer_quantity);
-        const giveVal = calcValue(trade.taker_item, trade.taker_quantity);
-        const ratio =
-          getVal && giveVal && giveVal.wm > 0
-            ? getVal.wm / giveVal.wm
-            : null;
-        return { trade, getVal, giveVal, ratio };
-      })
-      .sort((a, b) => {
-        if (a.ratio === null && b.ratio === null) return 0;
-        if (a.ratio === null) return 1;
-        if (b.ratio === null) return -1;
-        return b.ratio - a.ratio;
-      });
+    const rows = items.map((trade) => {
+      const getVal = calcValue(trade.offer_item, trade.offer_quantity);
+      const giveVal = calcValue(trade.taker_item, trade.taker_quantity);
+      const ratio =
+        getVal && giveVal && giveVal.wm > 0 ? getVal.wm / giveVal.wm : null;
+      return { trade, getVal, giveVal, ratio };
+    });
 
     const fmtSlug = (slug) =>
       slug.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
