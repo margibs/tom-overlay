@@ -248,7 +248,7 @@
       resources.food,
       withheld.food,
       capacities.food,
-      production.food,
+      foodNet,
     );
     html += resRow(
       "Wood",
