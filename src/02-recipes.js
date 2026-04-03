@@ -150,6 +150,26 @@
       ],
     },
     {
+      name: "Inasal",
+      slug: "inasal",
+      yield: 1,
+      time: 90,
+      ingredients: [
+        { slug: "food", qty: 5000 },
+        { slug: "salt", qty: 1 },
+      ],
+    },
+    {
+      name: "Adobo",
+      slug: "adobo",
+      yield: 1,
+      time: 90,
+      ingredients: [
+        { slug: "food", qty: 5000 },
+        { slug: "salt", qty: 1 },
+      ],
+    },
+    {
       name: "Gold Dust",
       slug: "gold_dust",
       yield: 3,
@@ -164,6 +184,9 @@
     "salt":             "sugbuanon",  // TODO: confirm tribe name
     "gold_dust":        "taga_ilog",  // TODO: confirm tribe name
     "coconut_charcoal": "tausug",     // TODO: confirm tribe name
+    "tiula_itum":       "tausug",
+    "inasal":           "sugbuanon",  // TODO: confirm tribe assignment
+    "adobo":            "taga_ilog",  // TODO: confirm tribe assignment
   };
 
   // Recipes the current user's tribe cannot craft (computed from userTribe).
