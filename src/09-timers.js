@@ -23,17 +23,11 @@
     if (seconds <= 0) return "done";
     const h = Math.floor(seconds / 3600);
     const m = Math.floor((seconds % 3600) / 60);
-    if (h > 0) return `${h}h ${m}m`;
     const s = seconds % 60;
+    if (h > 0) return `${h}h ${m}m ${s}s`;
     return m > 0 ? `${m}m ${s}s` : `${s}s`;
   }
 
-  function formatMSS(seconds) {
-    if (seconds <= 0) return "done";
-    const m = Math.floor(seconds / 60);
-    const s = seconds % 60;
-    return `${m}:${String(s).padStart(2, "0")}`;
-  }
 
   const clearedTimers = new Set();
   const timerFirstSeen = {}; // { [buildingId-finishTime]: unixSeconds }
@@ -76,7 +70,7 @@
           const label = (t.label || "").replace(/^Crafting\s+/i, "");
           return `<div class="tom-aq-row">
             <span class="tom-aq-label">${label}</span>
-            <span class="tom-aq-time" data-finish="${finishTime}">${formatMSS(remaining)}</span>
+            <span class="tom-aq-time" data-finish="${finishTime}">${formatCountdown(remaining)}</span>
           </div>`;
         })
         .join("");
@@ -92,7 +86,7 @@
       // In-place countdown update only
       section.querySelectorAll(".tom-aq-time[data-finish]").forEach((el) => {
         const finishTime = parseInt(el.dataset.finish, 10);
-        el.textContent = formatMSS(Math.max(0, finishTime - now));
+        el.textContent = formatCountdown(Math.max(0, finishTime - now));
       });
       // Keep arrow in sync (collapsed state may have changed)
       const headerSpan = section.querySelector("#tom-aq-header span");
