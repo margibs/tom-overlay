@@ -461,6 +461,12 @@ function injectStyles() {
       .tom-bld-sort-btn:hover { background: rgba(255,255,255,0.18); color: #fff; }
       .tom-bld-sort-btn.active { background: #fbbf24; color: #1a1a1a; font-weight: 600; }
       .tom-bld-hidden { display: none !important; }
+      .tom-bld-cat-divider {
+        grid-column: 1 / -1; font-size: 11px; color: #fbbf24; opacity: 0.8;
+        padding: 8px 4px 2px; font-family: 'Work Sans', system-ui, sans-serif;
+        font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase;
+        border-bottom: 1px solid rgba(251,191,36,0.15);
+      }
       .tom-bld-no-results {
         grid-column: 1 / -1; text-align: center; color: #888;
         padding: 20px; font-size: 13px;

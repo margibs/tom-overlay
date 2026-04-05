@@ -1,5 +1,25 @@
 // --- Building Sort (Construct Building modal) ---
 
+const BLD_CATEGORIES = [
+  { group: "Housing", order: 0, match: ["settler", "barracks"] },
+  { group: "Production", order: 1, match: ["farmer", "woodcutter", "miner"] },
+  { group: "Military", order: 2, match: ["training grounds", "archery grounds"] },
+  { group: "Storage", order: 3, match: ["storage"] },
+  { group: "Trade", order: 4, match: ["market"] },
+  { group: "Crafting", order: 5, match: ["crafter"] },
+  { group: "Research", order: 6, match: ["scholar", "academy"] },
+];
+
+function getBldCategory(name) {
+  const lower = name.toLowerCase();
+  for (const cat of BLD_CATEGORIES) {
+    if (cat.match.some((m) => lower.includes(m))) {
+      return { group: cat.group, order: cat.order };
+    }
+  }
+  return { group: "Other", order: 99 };
+}
+
 let bldCurrentSort = "default";
 let bldCurrentSearch = "";
 
@@ -66,6 +86,7 @@ function buildBldToolbar(grid) {
     { key: "builders-desc", label: "Builders \u2193" },
     { key: "food-asc", label: "Food \u2191" },
     { key: "food-desc", label: "Food \u2193" },
+    { key: "category", label: "Category" },
   ];
 
   modes.forEach(({ key, label }) => {
@@ -91,7 +112,8 @@ function buildBldToolbar(grid) {
 function applyBldFilters(grid) {
   const query = bldCurrentSearch.toLowerCase();
 
-  // Remove existing no-results message
+  // Remove existing dividers and no-results message
+  grid.querySelectorAll(".tom-bld-cat-divider").forEach((el) => el.remove());
   const existing = grid.querySelector(".tom-bld-no-results");
   if (existing) existing.remove();
 
@@ -127,6 +149,12 @@ function applyBldFilters(grid) {
         return (costsA.food || 0) - (costsB.food || 0);
       case "food-desc":
         return (costsB.food || 0) - (costsA.food || 0);
+      case "category": {
+        const catA = getBldCategory(getBldName(a));
+        const catB = getBldCategory(getBldName(b));
+        if (catA.order !== catB.order) return catA.order - catB.order;
+        return parseInt(a.dataset.tomOrigIdx, 10) - parseInt(b.dataset.tomOrigIdx, 10);
+      }
       default:
         return (
           parseInt(a.dataset.tomOrigIdx, 10) -
@@ -135,11 +163,28 @@ function applyBldFilters(grid) {
     }
   });
 
-  // Re-append in order: visible sorted, then hidden
-  visible.forEach((card) => {
-    card.classList.remove("tom-bld-hidden");
-    grid.appendChild(card);
-  });
+  // Re-append in order with category dividers if needed
+  if (bldCurrentSort === "category") {
+    let lastGroup = null;
+    visible.forEach((card) => {
+      card.classList.remove("tom-bld-hidden");
+      const cat = getBldCategory(getBldName(card));
+      if (cat.group !== lastGroup) {
+        const divider = document.createElement("div");
+        divider.className = "tom-bld-cat-divider";
+        divider.textContent = cat.group;
+        grid.appendChild(divider);
+        lastGroup = cat.group;
+      }
+      grid.appendChild(card);
+    });
+  } else {
+    visible.forEach((card) => {
+      card.classList.remove("tom-bld-hidden");
+      grid.appendChild(card);
+    });
+  }
+
   hidden.forEach((card) => {
     card.classList.add("tom-bld-hidden");
     grid.appendChild(card);
