@@ -34,6 +34,7 @@ function renderAll() {
 domReady(() => {
   injectStyles();
   initInventorySort();
+  initBuildingSort();
   onTownData((data) => {
     lastParsed = parseTownData(data);
     // Derive queue max from command center level
