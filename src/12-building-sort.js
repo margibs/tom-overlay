@@ -80,26 +80,39 @@ function buildBldToolbar(grid) {
 
   const modes = [
     { key: "default", label: "Default" },
-    { key: "name-asc", label: "A\u2192Z" },
-    { key: "name-desc", label: "Z\u2192A" },
-    { key: "builders-asc", label: "Builders \u2191" },
-    { key: "builders-desc", label: "Builders \u2193" },
-    { key: "food-asc", label: "Food \u2191" },
-    { key: "food-desc", label: "Food \u2193" },
+    { key: "name", label: "Name", asc: "name-asc", desc: "name-desc" },
+    { key: "builders", label: "Builders", asc: "builders-asc", desc: "builders-desc" },
+    { key: "food", label: "Food", asc: "food-asc", desc: "food-desc" },
     { key: "category", label: "Category" },
   ];
 
-  modes.forEach(({ key, label }) => {
+  modes.forEach((mode) => {
     const btn = document.createElement("button");
+    const isToggle = mode.asc && mode.desc;
+    const currentDir = isToggle && bldCurrentSort === mode.desc ? "desc"
+      : isToggle && bldCurrentSort === mode.asc ? "asc" : null;
     btn.className =
-      "tom-bld-sort-btn" + (key === bldCurrentSort ? " active" : "");
-    btn.textContent = label;
+      "tom-bld-sort-btn" +
+      (currentDir || bldCurrentSort === mode.key ? " active" : "");
+    if (isToggle) {
+      btn.textContent = mode.label + " " + (currentDir === "asc" ? "\u2191" : "\u2193");
+    } else {
+      btn.textContent = mode.label;
+    }
     btn.addEventListener("click", () => {
       sortRow
         .querySelectorAll(".tom-bld-sort-btn")
         .forEach((b) => b.classList.remove("active"));
       btn.classList.add("active");
-      bldCurrentSort = key;
+      if (isToggle) {
+        const wasDir = bldCurrentSort === mode.desc ? "desc"
+          : bldCurrentSort === mode.asc ? "asc" : null;
+        const newDir = wasDir === "desc" ? "asc" : "desc";
+        bldCurrentSort = newDir === "desc" ? mode.desc : mode.asc;
+        btn.textContent = mode.label + " " + (newDir === "asc" ? "\u2191" : "\u2193");
+      } else {
+        bldCurrentSort = mode.key;
+      }
       applyBldFilters(grid);
     });
     sortRow.appendChild(btn);

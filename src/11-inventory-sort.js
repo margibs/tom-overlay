@@ -83,25 +83,39 @@ function buildSortBar(grid) {
 
   const modes = [
     { key: "default", label: "Default" },
-    { key: "qty-desc", label: "Qty \u2193" },
-    { key: "qty-asc", label: "Qty \u2191" },
-    { key: "name-asc", label: "A\u2192Z" },
-    { key: "name-desc", label: "Z\u2192A" },
+    { key: "qty", label: "Qty", desc: "qty-desc", asc: "qty-asc" },
+    { key: "name", label: "Name", asc: "name-asc", desc: "name-desc" },
     { key: "category", label: "Category" },
   ];
 
-  modes.forEach(({ key, label }) => {
+  modes.forEach((mode) => {
     const btn = document.createElement("button");
+    const isToggle = mode.asc && mode.desc;
+    const currentDir = isToggle && invCurrentSort === mode.desc ? "desc"
+      : isToggle && invCurrentSort === mode.asc ? "asc" : null;
     btn.className =
-      "tom-inv-sort-btn" + (key === invCurrentSort ? " active" : "");
-    btn.textContent = label;
+      "tom-inv-sort-btn" +
+      (currentDir || invCurrentSort === mode.key ? " active" : "");
+    if (isToggle) {
+      btn.textContent = mode.label + " " + (currentDir === "asc" ? "\u2191" : "\u2193");
+    } else {
+      btn.textContent = mode.label;
+    }
     btn.addEventListener("click", () => {
       bar
         .querySelectorAll(".tom-inv-sort-btn")
         .forEach((b) => b.classList.remove("active"));
       btn.classList.add("active");
-      invCurrentSort = key;
-      applySort(grid, key);
+      if (isToggle) {
+        const wasDir = invCurrentSort === mode.desc ? "desc"
+          : invCurrentSort === mode.asc ? "asc" : null;
+        const newDir = wasDir === "desc" ? "asc" : "desc";
+        invCurrentSort = newDir === "desc" ? mode.desc : mode.asc;
+        btn.textContent = mode.label + " " + (newDir === "asc" ? "\u2191" : "\u2193");
+      } else {
+        invCurrentSort = mode.key;
+      }
+      applySort(grid, invCurrentSort);
     });
     bar.appendChild(btn);
   });
