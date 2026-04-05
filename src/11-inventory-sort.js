@@ -199,6 +199,30 @@ function handleTownItemsModal(modal) {
   if (invCurrentSort !== "default") {
     applySort(grid, invCurrentSort);
   }
+
+  // Watch for React re-renders that replace inventory children
+  const gridObserver = new MutationObserver(() => {
+    // Re-stamp and re-format any new items without tomOrigIdx
+    const freshItems = grid.querySelectorAll(
+      ".inventory-item:not(.empty-slot)",
+    );
+    let needsReapply = false;
+    freshItems.forEach((el, i) => {
+      if (!el.dataset.tomOrigIdx) {
+        el.dataset.tomOrigIdx = i;
+        needsReapply = true;
+      }
+      const qtyEl = el.querySelector(".item-quantity");
+      if (qtyEl && !/\s/.test(qtyEl.textContent) && qtyEl.textContent.length > 3) {
+        const num = parseInt(qtyEl.textContent.replace(/[\s,]/g, ""), 10);
+        if (!isNaN(num)) qtyEl.textContent = num.toLocaleString("fr-FR");
+      }
+    });
+    if (needsReapply && invCurrentSort !== "default") {
+      applySort(grid, invCurrentSort);
+    }
+  });
+  gridObserver.observe(grid, { childList: true, subtree: true });
 }
 
 function initInventorySort() {
