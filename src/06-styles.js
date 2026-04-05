@@ -1,13 +1,13 @@
-  // --- Styles ---
-  function injectStyles() {
-    const link = document.createElement("link");
-    link.rel = "stylesheet";
-    link.href =
-      "https://fonts.googleapis.com/css2?family=Work+Sans:wght@500;700&family=Newsreader:wght@700&display=swap";
-    document.head.appendChild(link);
+// --- Styles ---
+function injectStyles() {
+  const link = document.createElement("link");
+  link.rel = "stylesheet";
+  link.href =
+    "https://fonts.googleapis.com/css2?family=Work+Sans:wght@500;700&family=Newsreader:wght@700&display=swap";
+  document.head.appendChild(link);
 
-    const style = document.createElement("style");
-    style.textContent = `
+  const style = document.createElement("style");
+  style.textContent = `
       #tom-overlay {
         position: fixed;
         left: 8px;
@@ -410,6 +410,26 @@
       .tom-market-sides > div { display: flex; align-items: center; gap: 4px; }
       .tom-market-item { font-size: 11px; color: #e0e0e0; flex: 1; }
       .tom-market-wm   { font-size: 10px; color: #666; flex-shrink: 0; }
+
+      /* Inventory sort bar */
+      .tom-inv-sort-bar {
+        display: flex; gap: 4px; padding: 4px 8px 8px; flex-wrap: wrap;
+      }
+      .tom-inv-sort-btn {
+        background: rgba(255,255,255,0.1); color: #ccc; border: none;
+        padding: 3px 10px; border-radius: 12px; font-size: 11px;
+        cursor: pointer; font-family: 'Work Sans', system-ui, sans-serif;
+        transition: background 0.15s, color 0.15s;
+      }
+      .tom-inv-sort-btn:hover { background: rgba(255,255,255,0.18); color: #fff; }
+      .tom-inv-sort-btn.active { background: #fbbf24; color: #1a1a1a; font-weight: 600; }
+      .tom-inv-cat-divider {
+        grid-column: 1 / -1; font-size: 10px; color: #fbbf24; opacity: 0.8;
+        padding: 6px 4px 2px; font-family: 'Work Sans', system-ui, sans-serif;
+        font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase;
+        border-bottom: 1px solid rgba(251,191,36,0.15);
+      }
     `;
-    document.head.appendChild(style);
-  }
+  document.head.appendChild(style);
+}
+
