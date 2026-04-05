@@ -490,7 +490,7 @@ function injectStyles() {
         outline: none;
         font-family: 'Work Sans', system-ui, sans-serif;
       }
-      .tom-cft-search:focus { border-color: #a855f7; }
+      .tom-cft-search:focus { border-color: #fbbf24; }
       .tom-cft-search::placeholder { color: #777; }
       .tom-cft-sort-row {
         display: flex; gap: 4px; flex-wrap: wrap;
@@ -502,13 +502,13 @@ function injectStyles() {
         transition: background 0.15s, color 0.15s;
       }
       .tom-cft-sort-btn:hover { background: rgba(255,255,255,0.18); color: #fff; }
-      .tom-cft-sort-btn.active { background: #a855f7; color: #fff; font-weight: 600; }
+      .tom-cft-sort-btn.active { background: #fbbf24; color: #1a1a1a; font-weight: 600; }
       .tom-cft-hidden { display: none !important; }
       .tom-cft-cat-divider {
-        font-size: 11px; color: #a855f7; opacity: 0.8;
+        font-size: 11px; color: #fbbf24; opacity: 0.8;
         padding: 8px 4px 2px; font-family: 'Work Sans', system-ui, sans-serif;
         font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase;
-        border-bottom: 1px solid rgba(168,85,247,0.15);
+        border-bottom: 1px solid rgba(251,191,36,0.15);
       }
       .tom-cft-no-results {
         text-align: center; color: #888;
