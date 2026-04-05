@@ -114,14 +114,20 @@
           const ratio = giveVal.wm > 0 ? getVal.wm / giveVal.wm : Infinity;
           const pct = ((ratio - 1) * 100).toFixed(0);
           let verdict, vClass;
-          if (ratio >= 1.5) {
+          if (ratio >= 1.3) {
             verdict = "✅ Great Deal";
             vClass = "tom-trade-great";
+          } else if (ratio >= 1.1) {
+            verdict = "✅ Good Deal";
+            vClass = "tom-trade-great";
           } else if (ratio >= 0.9) {
-            verdict = "⚖ Fair";
+            verdict = "🟢 Fair";
             vClass = "tom-trade-fair";
+          } else if (ratio >= 0.8) {
+            verdict = "🟡 Risky";
+            vClass = "tom-trade-risky";
           } else {
-            verdict = "❌ Bad Deal";
+            verdict = "🔴 Bad Deal";
             vClass = "tom-trade-bad";
           }
 
@@ -601,14 +607,18 @@
         badgeClass = "tom-market-badge-unknown";
         badgeText = "?";
         badgeSubtext = "";
-      } else if (ratio >= 1.0) {
+      } else if (ratio >= 1.1) {
         badgeClass = "tom-market-badge-good";
         badgeText = ratio.toFixed(2) + "x";
         badgeSubtext = "favor";
+      } else if (ratio >= 0.9) {
+        badgeClass = "tom-market-badge-good";
+        badgeText = ratio.toFixed(2) + "x";
+        badgeSubtext = "fair";
       } else if (ratio >= 0.8) {
         badgeClass = "tom-market-badge-fair";
         badgeText = (1 / ratio).toFixed(2) + "x";
-        badgeSubtext = "against";
+        badgeSubtext = "risky";
       } else {
         badgeClass = "tom-market-badge-bad";
         badgeText = (1 / ratio).toFixed(2) + "x";
@@ -633,8 +643,8 @@
         const favorStr = ratio >= 1
           ? `${ratio.toFixed(2)}x in your favor (+${pct}%)`
           : `${(1 / ratio).toFixed(2)}x against you (${pct}%)`;
-        const vClass = ratio >= 1.5 ? "tom-trade-great" : ratio >= 0.9 ? "tom-trade-fair" : "tom-trade-bad";
-        const verdict = ratio >= 1.5 ? "✅ Great Deal" : ratio >= 0.9 ? "⚖ Fair" : "❌ Bad Deal";
+        const vClass = ratio >= 1.3 ? "tom-trade-great" : ratio >= 1.1 ? "tom-trade-great" : ratio >= 0.9 ? "tom-trade-fair" : ratio >= 0.8 ? "tom-trade-risky" : "tom-trade-bad";
+        const verdict = ratio >= 1.3 ? "✅ Great Deal" : ratio >= 1.1 ? "✅ Good Deal" : ratio >= 0.9 ? "🟢 Fair" : ratio >= 0.8 ? "🟡 Risky" : "🔴 Bad Deal";
 
         html += `<div id="${tradeId}" style="display:none;padding:4px 8px 8px 60px">
           <div class="tom-trade-result-inner">

@@ -335,7 +335,8 @@ function injectStyles() {
         text-align: center;
       }
       .tom-trade-great { background: rgba(74,222,128,0.15); color: #4ade80; }
-      .tom-trade-fair { background: rgba(251,191,36,0.15); color: #fbbf24; }
+      .tom-trade-fair { background: rgba(74,222,128,0.10); color: #86efac; }
+      .tom-trade-risky { background: rgba(251,191,36,0.15); color: #fbbf24; }
       .tom-trade-bad { background: rgba(239,68,68,0.15); color: #ef4444; }
       .tom-trade-unknown { color: #fb923c; font-size: 11px; padding: 6px 0; }
       .tom-trade-gold-row {
