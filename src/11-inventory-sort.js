@@ -37,8 +37,6 @@ const ITEM_CATEGORY = {};
   "stick",
   "iron_nugget",
   "steel_nugget",
-  "coconut_charcoal",
-  "gold_dust",
 ].forEach((s) => (ITEM_CATEGORY[s] = { group: "Materials", order: 1 }));
 [
   "sword",
@@ -51,8 +49,16 @@ const ITEM_CATEGORY = {};
   "bow_and_arrow_2",
   "stone_axe",
 ].forEach((s) => (ITEM_CATEGORY[s] = { group: "Weapons", order: 2 }));
-["tent", "salt", "gold_coin", "tiula_itum", "peace_amululet8_free"].forEach(
-  (s) => (ITEM_CATEGORY[s] = { group: "Other", order: 3 }),
+[
+  "salt",
+  "gold_dust",
+  "coconut_charcoal",
+  "tiula_itum",
+  "inasal",
+  "adobo",
+].forEach((s) => (ITEM_CATEGORY[s] = { group: "Tribal Locked", order: 3 }));
+["tent", "gold_coin", "peace_amululet8_free"].forEach(
+  (s) => (ITEM_CATEGORY[s] = { group: "Other", order: 4 }),
 );
 
 let invCurrentSort = "default";
