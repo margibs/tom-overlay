@@ -70,7 +70,7 @@ function getSlug(el) {
 
 function getQty(el) {
   const span = el.querySelector(".item-quantity");
-  return span ? parseInt(span.textContent.replace(/,/g, ""), 10) || 0 : 0;
+  return span ? parseInt(span.textContent.replace(/[\s,]/g, ""), 10) || 0 : 0;
 }
 
 function getDisplayName(slug) {
@@ -177,9 +177,16 @@ function handleTownItemsModal(modal) {
   // Already injected?
   if (modal.querySelector(".tom-inv-sort-bar")) return;
 
-  // Stamp original order
+  // Stamp original order and format quantities
   const items = grid.querySelectorAll(".inventory-item:not(.empty-slot)");
-  items.forEach((el, i) => (el.dataset.tomOrigIdx = i));
+  items.forEach((el, i) => {
+    el.dataset.tomOrigIdx = i;
+    const qtyEl = el.querySelector(".item-quantity");
+    if (qtyEl) {
+      const num = parseInt(qtyEl.textContent.replace(/\s/g, ""), 10);
+      if (!isNaN(num)) qtyEl.textContent = num.toLocaleString("fr-FR");
+    }
+  });
 
   // Inject sort bar after header
   const bar = buildSortBar(grid);
