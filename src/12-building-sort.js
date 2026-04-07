@@ -1,52 +1,16 @@
 // --- Building Sort (Construct Building modal) ---
 
-const BLD_CATEGORIES = [
-  { group: "Housing", order: 0, match: ["settler", "barracks"] },
-  { group: "Production", order: 1, match: ["farmer", "woodcutter", "miner"] },
-  { group: "Military", order: 2, match: ["training grounds", "archery grounds"] },
-  { group: "Storage", order: 3, match: ["storage"] },
-  { group: "Trade", order: 4, match: ["market"] },
-  { group: "Crafting", order: 5, match: ["crafter"] },
-  { group: "Research", order: 6, match: ["scholar", "academy"] },
-];
-
-function getBldCategory(name) {
+function getBldTab(name) {
   const lower = name.toLowerCase();
-  for (const cat of BLD_CATEGORIES) {
-    if (cat.match.some((m) => lower.includes(m))) {
-      return { group: cat.group, order: cat.order };
-    }
-  }
-  return { group: "Other", order: 99 };
+  if (["barracks", "training grounds", "archery grounds"].some((k) => lower.includes(k)))
+    return "military";
+  if (["farmer", "woodcutter", "miner"].some((k) => lower.includes(k)))
+    return "resources";
+  return "infrastructure";
 }
 
-let bldCurrentSort = "default";
+let bldCurrentTab = "infrastructure";
 let bldCurrentSearch = "";
-
-function parseBldCosts(card) {
-  const costs = {};
-  const costItems = card.querySelectorAll(".cost-item");
-  costItems.forEach((item) => {
-    const match = item.textContent.trim().match(/^(.+?):\s*(\d+)/);
-    if (match) {
-      costs[match[1].toLowerCase().trim()] = parseInt(match[2], 10);
-    }
-  });
-  // Fallback: parse full .costs text if no .cost-item spans found
-  if (Object.keys(costs).length === 0) {
-    const costsEl = card.querySelector(".costs");
-    if (costsEl) {
-      const pairs = costsEl.textContent.split("\u2022"); // bullet •
-      pairs.forEach((pair) => {
-        const match = pair.trim().match(/^(.+?):\s*(\d+)/);
-        if (match) {
-          costs[match[1].toLowerCase().trim()] = parseInt(match[2], 10);
-        }
-      });
-    }
-  }
-  return costs;
-}
 
 function getBldName(card) {
   const h3 = card.querySelector("h3");
@@ -62,6 +26,31 @@ function buildBldToolbar(grid) {
   const toolbar = document.createElement("div");
   toolbar.className = "tom-bld-toolbar";
 
+  // Tab row
+  const tabRow = document.createElement("div");
+  tabRow.className = "tom-bld-tab-row";
+
+  const tabs = [
+    { key: "infrastructure", label: "Infrastructure" },
+    { key: "military", label: "Military" },
+    { key: "resources", label: "Resources" },
+  ];
+
+  tabs.forEach((tab) => {
+    const btn = document.createElement("button");
+    btn.className = "tom-bld-tab-btn" + (bldCurrentTab === tab.key ? " active" : "");
+    btn.textContent = tab.label;
+    btn.addEventListener("click", () => {
+      tabRow.querySelectorAll(".tom-bld-tab-btn").forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+      bldCurrentTab = tab.key;
+      applyBldFilters(grid);
+    });
+    tabRow.appendChild(btn);
+  });
+
+  toolbar.appendChild(tabRow);
+
   // Search input
   const search = document.createElement("input");
   search.type = "text";
@@ -74,136 +63,47 @@ function buildBldToolbar(grid) {
   });
   toolbar.appendChild(search);
 
-  // Sort buttons
-  const sortRow = document.createElement("div");
-  sortRow.className = "tom-bld-sort-row";
-
-  const modes = [
-    { key: "default", label: "Default" },
-    { key: "name", label: "Name", asc: "name-asc", desc: "name-desc" },
-    { key: "builders", label: "Builders", asc: "builders-asc", desc: "builders-desc" },
-    { key: "food", label: "Food", asc: "food-asc", desc: "food-desc" },
-    { key: "category", label: "Category" },
-  ];
-
-  modes.forEach((mode) => {
-    const btn = document.createElement("button");
-    const isToggle = mode.asc && mode.desc;
-    const currentDir = isToggle && bldCurrentSort === mode.desc ? "desc"
-      : isToggle && bldCurrentSort === mode.asc ? "asc" : null;
-    btn.className =
-      "tom-bld-sort-btn" +
-      (currentDir || bldCurrentSort === mode.key ? " active" : "");
-    if (isToggle) {
-      btn.textContent = mode.label + " " + (currentDir === "asc" ? "\u2191" : "\u2193");
-    } else {
-      btn.textContent = mode.label;
-    }
-    btn.addEventListener("click", () => {
-      sortRow
-        .querySelectorAll(".tom-bld-sort-btn")
-        .forEach((b) => b.classList.remove("active"));
-      btn.classList.add("active");
-      if (isToggle) {
-        const wasDir = bldCurrentSort === mode.desc ? "desc"
-          : bldCurrentSort === mode.asc ? "asc" : null;
-        const newDir = wasDir === "desc" ? "asc" : "desc";
-        bldCurrentSort = newDir === "desc" ? mode.desc : mode.asc;
-        btn.textContent = mode.label + " " + (newDir === "asc" ? "\u2191" : "\u2193");
-      } else {
-        bldCurrentSort = mode.key;
-      }
-      applyBldFilters(grid);
-    });
-    sortRow.appendChild(btn);
-  });
-
-  toolbar.appendChild(sortRow);
   return toolbar;
 }
 
 function applyBldFilters(grid) {
   const query = bldCurrentSearch.toLowerCase();
 
-  // Remove existing dividers and no-results message
-  grid.querySelectorAll(".tom-bld-cat-divider").forEach((el) => el.remove());
+  // Remove existing no-results message
   const existing = grid.querySelector(".tom-bld-no-results");
   if (existing) existing.remove();
 
   const cards = [...grid.querySelectorAll(".building-option")];
 
-  // Filter
   const visible = [];
   const hidden = [];
+
   cards.forEach((card) => {
     const name = getBldName(card);
     const desc = getBldDesc(card);
-    if (query && !name.includes(query) && !desc.includes(query)) {
-      hidden.push(card);
-    } else {
+    const tabMatch = getBldTab(name) === bldCurrentTab;
+    const searchMatch = !query || name.includes(query) || desc.includes(query);
+    if (tabMatch && searchMatch) {
       visible.push(card);
+    } else {
+      hidden.push(card);
     }
   });
 
-  // Sort visible cards
-  visible.sort((a, b) => {
-    const costsA = a._tomCosts || {};
-    const costsB = b._tomCosts || {};
-    switch (bldCurrentSort) {
-      case "name-asc":
-        return getBldName(a).localeCompare(getBldName(b));
-      case "name-desc":
-        return getBldName(b).localeCompare(getBldName(a));
-      case "builders-asc":
-        return (costsA.builders || 0) - (costsB.builders || 0);
-      case "builders-desc":
-        return (costsB.builders || 0) - (costsA.builders || 0);
-      case "food-asc":
-        return (costsA.food || 0) - (costsB.food || 0);
-      case "food-desc":
-        return (costsB.food || 0) - (costsA.food || 0);
-      case "category": {
-        const catA = getBldCategory(getBldName(a));
-        const catB = getBldCategory(getBldName(b));
-        if (catA.order !== catB.order) return catA.order - catB.order;
-        return parseInt(a.dataset.tomOrigIdx, 10) - parseInt(b.dataset.tomOrigIdx, 10);
-      }
-      default:
-        return (
-          parseInt(a.dataset.tomOrigIdx, 10) -
-          parseInt(b.dataset.tomOrigIdx, 10)
-        );
-    }
+  // Re-append in original order
+  visible.sort(
+    (a, b) => parseInt(a.dataset.tomOrigIdx, 10) - parseInt(b.dataset.tomOrigIdx, 10)
+  );
+
+  visible.forEach((card) => {
+    card.classList.remove("tom-bld-hidden");
+    grid.appendChild(card);
   });
-
-  // Re-append in order with category dividers if needed
-  if (bldCurrentSort === "category") {
-    let lastGroup = null;
-    visible.forEach((card) => {
-      card.classList.remove("tom-bld-hidden");
-      const cat = getBldCategory(getBldName(card));
-      if (cat.group !== lastGroup) {
-        const divider = document.createElement("div");
-        divider.className = "tom-bld-cat-divider";
-        divider.textContent = cat.group;
-        grid.appendChild(divider);
-        lastGroup = cat.group;
-      }
-      grid.appendChild(card);
-    });
-  } else {
-    visible.forEach((card) => {
-      card.classList.remove("tom-bld-hidden");
-      grid.appendChild(card);
-    });
-  }
-
   hidden.forEach((card) => {
     card.classList.add("tom-bld-hidden");
     grid.appendChild(card);
   });
 
-  // Show no-results message if needed
   if (visible.length === 0 && hidden.length > 0) {
     const msg = document.createElement("div");
     msg.className = "tom-bld-no-results";
@@ -220,21 +120,18 @@ function handleConstructModal(modal) {
   // Already injected?
   if (modal.querySelector(".tom-bld-toolbar")) return;
 
-  // Stamp original order and parse costs
+  // Stamp original order
   const cards = grid.querySelectorAll(".building-option");
   cards.forEach((card, i) => {
     card.dataset.tomOrigIdx = i;
-    card._tomCosts = parseBldCosts(card);
   });
 
   // Inject toolbar
   const toolbar = buildBldToolbar(grid);
   body.insertBefore(toolbar, body.firstChild);
 
-  // Re-apply last state
-  if (bldCurrentSort !== "default" || bldCurrentSearch) {
-    applyBldFilters(grid);
-  }
+  // Apply initial tab filter
+  applyBldFilters(grid);
 
   // Watch for React re-renders
   const gridObserver = new MutationObserver(() => {
@@ -243,13 +140,10 @@ function handleConstructModal(modal) {
     freshCards.forEach((card, i) => {
       if (!card.dataset.tomOrigIdx) {
         card.dataset.tomOrigIdx = i;
-        card._tomCosts = parseBldCosts(card);
         needsReapply = true;
       }
     });
-    if (needsReapply && (bldCurrentSort !== "default" || bldCurrentSearch)) {
-      applyBldFilters(grid);
-    }
+    if (needsReapply) applyBldFilters(grid);
   });
   gridObserver.observe(grid, { childList: true, subtree: true });
 }
