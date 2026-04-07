@@ -435,6 +435,18 @@ function injectStyles() {
       .tom-bld-toolbar {
         display: flex; flex-direction: column; gap: 6px; padding: 4px 20px 8px;
       }
+      .tom-bld-tab-row {
+        display: flex; gap: 0; border-bottom: 2px solid rgba(251,191,36,0.3); margin-bottom: 2px;
+      }
+      .tom-bld-tab-btn {
+        background: rgba(255,255,255,0.06); color: #999; border: none;
+        padding: 5px 14px; font-size: 12px; font-weight: 600;
+        cursor: pointer; font-family: 'Work Sans', system-ui, sans-serif;
+        transition: background 0.15s, color 0.15s;
+        border-radius: 4px 4px 0 0; letter-spacing: 0.3px;
+      }
+      .tom-bld-tab-btn:hover { background: rgba(255,255,255,0.12); color: #ddd; }
+      .tom-bld-tab-btn.active { background: #fbbf24; color: #1a1a1a; }
       .tom-bld-search {
         width: 100%;
         background: rgba(255,255,255,0.08);
@@ -449,24 +461,7 @@ function injectStyles() {
       }
       .tom-bld-search:focus { border-color: #fbbf24; }
       .tom-bld-search::placeholder { color: #777; }
-      .tom-bld-sort-row {
-        display: flex; gap: 4px; flex-wrap: wrap;
-      }
-      .tom-bld-sort-btn {
-        background: rgba(255,255,255,0.1); color: #ccc; border: none;
-        padding: 3px 10px; border-radius: 12px; font-size: 11px;
-        cursor: pointer; font-family: 'Work Sans', system-ui, sans-serif;
-        transition: background 0.15s, color 0.15s;
-      }
-      .tom-bld-sort-btn:hover { background: rgba(255,255,255,0.18); color: #fff; }
-      .tom-bld-sort-btn.active { background: #fbbf24; color: #1a1a1a; font-weight: 600; }
       .tom-bld-hidden { display: none !important; }
-      .tom-bld-cat-divider {
-        grid-column: 1 / -1; font-size: 11px; color: #fbbf24; opacity: 0.8;
-        padding: 8px 4px 2px; font-family: 'Work Sans', system-ui, sans-serif;
-        font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase;
-        border-bottom: 1px solid rgba(251,191,36,0.15);
-      }
       .tom-bld-no-results {
         grid-column: 1 / -1; text-align: center; color: #888;
         padding: 20px; font-size: 13px;
