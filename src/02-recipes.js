@@ -181,11 +181,11 @@ const CRAFT_RECIPES = [
 // Which tribe exclusively crafts each recipe.
 // TODO: confirm exact in-game tribe name spelling for each entry
 const TRIBE_EXCLUSIVE = {
-  salt: "sugboanon",
+  salt: "sugbuanon",
   gold_dust: "taga_ilog", // TODO: confirm tribe name
   coconut_charcoal: "tausug",
   tiula_itum: "tausug",
-  inasal: "sugboanon",
+  inasal: "sugbuanon",
   adobo: "taga_ilog", // TODO: confirm tribe assignment
 };
 
