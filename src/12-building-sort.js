@@ -138,7 +138,7 @@ function handleConstructModal(modal) {
     const freshCards = grid.querySelectorAll(".building-option");
     let needsReapply = false;
     freshCards.forEach((card, i) => {
-      if (!card.dataset.tomOrigIdx) {
+      if (!("tomOrigIdx" in card.dataset)) {
         card.dataset.tomOrigIdx = i;
         needsReapply = true;
       }
