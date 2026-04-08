@@ -95,6 +95,16 @@ const CRAFT_RECIPES = [
     ],
   },
   {
+    name: "Spear",
+    slug: "spear",
+    yield: 1,
+    time: 40,
+    ingredients: [
+      { slug: "wood", qty: 20 },
+      { slug: "mineral", qty: 20 },
+    ],
+  },
+  {
     name: "Steel Spear",
     slug: "spear2",
     yield: 1,
@@ -115,10 +125,20 @@ const CRAFT_RECIPES = [
     ],
   },
   {
-    name: "Composite Bow and Arrow",
+    name: "Bow and Arrow",
     slug: "bow_and_arrow",
     yield: 1,
-    time: 32,
+    time: 30,
+    ingredients: [
+      { slug: "wood", qty: 8 },
+      { slug: "stick", qty: 40 },
+    ],
+  },
+  {
+    name: "Composite Bow and Arrow",
+    slug: "bow_and_arrow2",
+    yield: 1,
+    time: 40,
     ingredients: [
       { slug: "wood", qty: 8 },
       { slug: "stick", qty: 40 },

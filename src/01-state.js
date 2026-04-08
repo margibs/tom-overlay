@@ -1,4 +1,4 @@
-  const VERSION = "1.4.9"; // keep in sync with @version in 00-header.js
+  const VERSION = "1.5.0"; // keep in sync with @version in 00-header.js
 
   let townData = null;
   let userTribe = null; // detected from owner.tribe in town API
