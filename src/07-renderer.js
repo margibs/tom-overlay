@@ -1,3 +1,10 @@
+  function fmtDuration(secs) {
+    const h = Math.floor(secs / 3600);
+    const m = Math.floor((secs % 3600) / 60);
+    const s = secs % 60;
+    return [h && `${h}h`, m && `${m}m`, s && `${s}s`].filter(Boolean).join(" ") || "0s";
+  }
+
   // --- Panel Renderer ---
   function renderPanel(parsed) {
     let panel = document.getElementById("tom-overlay");
@@ -106,6 +113,27 @@
           const giveVal = calcValue(giveSlug, giveQty);
           const res = document.getElementById("tom-trade-result");
 
+          // 1:1 fair trade suggestion
+          const getWmPer1 = calcValue(getSlug, 1)?.wm ?? 0;
+          const giveWmPer1 = calcValue(giveSlug, 1)?.wm ?? 0;
+          let fairHTML = "";
+          if (getWmPer1 > 0 && giveWmPer1 > 0) {
+            let fairGetQty, fairGiveQty, fairGetWm, fairGiveWm;
+            if (getWmPer1 >= giveWmPer1) {
+              fairGetQty = 1;
+              fairGiveQty = Math.round(getWmPer1 / giveWmPer1);
+              fairGetWm = Math.round(getWmPer1);
+              fairGiveWm = Math.round(calcValue(giveSlug, fairGiveQty).wm);
+            } else {
+              fairGetQty = Math.round(giveWmPer1 / getWmPer1);
+              fairGiveQty = 1;
+              fairGetWm = Math.round(calcValue(getSlug, fairGetQty).wm);
+              fairGiveWm = Math.round(giveWmPer1);
+            }
+            const getName = (slug) => TRADE_ITEMS.find((i) => i.slug === slug)?.name ?? slug;
+            fairHTML = `<div class="tom-trade-fair-suggest">Fair 1:1 — ${getName(getSlug)} × ${fairGetQty.toLocaleString()} (${fairGetWm.toLocaleString()} wm) ↔ ${getName(giveSlug)} × ${fairGiveQty.toLocaleString()} (${fairGiveWm.toLocaleString()} wm)</div>`;
+          }
+
           if (!getVal || !giveVal) {
             res.innerHTML = `<div class="tom-trade-unknown">⚠ One or more items have unknown value (gold dust has no production cost).</div>`;
             return;
@@ -143,18 +171,19 @@
               <span>${getQty.toLocaleString()} × ${TRADE_ITEMS.find((i) => i.slug === getSlug)?.name}</span>
             </div>
             <div class="tom-trade-breakdown">Materials: ${fmtBase(getVal.base)}</div>
-            ${getVal.craftSecs > 0 ? `<div class="tom-trade-breakdown">Craft time: ${getVal.craftSecs}s → ${getVal.craftWm.toFixed(1)} wm</div>` : ""}
+            ${getVal.craftSecs > 0 ? `<div class="tom-trade-breakdown">Craft time: ${fmtDuration(getVal.craftSecs)} → ${getVal.craftWm.toFixed(1)} wm</div>` : ""}
             <div class="tom-trade-wm">Total: <strong>${Math.round(getVal.wm).toLocaleString()} wm</strong>${getVal.craftSecs > 0 ? ` <span style="color:#555">(${Math.round(getVal.matWm)} mat + ${Math.round(getVal.craftWm)} time)</span>` : ""}</div>
             <div class="tom-trade-result-row" style="margin-top:6px">
               <span class="tom-trade-side tom-trade-give">GIVE</span>
               <span>${giveQty.toLocaleString()} × ${TRADE_ITEMS.find((i) => i.slug === giveSlug)?.name}</span>
             </div>
             <div class="tom-trade-breakdown">Materials: ${fmtBase(giveVal.base)}</div>
-            ${giveVal.craftSecs > 0 ? `<div class="tom-trade-breakdown">Craft time: ${giveVal.craftSecs}s → ${giveVal.craftWm.toFixed(1)} wm</div>` : ""}
+            ${giveVal.craftSecs > 0 ? `<div class="tom-trade-breakdown">Craft time: ${fmtDuration(giveVal.craftSecs)} → ${giveVal.craftWm.toFixed(1)} wm</div>` : ""}
             <div class="tom-trade-wm">Total: <strong>${Math.round(giveVal.wm).toLocaleString()} wm</strong>${giveVal.craftSecs > 0 ? ` <span style="color:#555">(${Math.round(giveVal.matWm)} mat + ${Math.round(giveVal.craftWm)} time)</span>` : ""}</div>
             <div class="tom-trade-verdict ${vClass}">
               ${verdict} — ${favorStr}
             </div>
+            ${fairHTML}
           </div>
         `;
         });
@@ -517,7 +546,7 @@
       // Base cost
       craftHtml += `<div class="tom-craft-base">`;
       craftHtml += `<div><span class="tom-craft-base-label">Total base cost:</span> ${fmtCost(baseCost)}</div>`;
-      craftHtml += `<div><span class="tom-craft-base-label">Craft time:</span> <span style="color:#e0e0e0">${craftSecs}s total</span> <span style="color:#888;font-size:10px">→ ${craftWm.toFixed(1)} wm</span></div>`;
+      craftHtml += `<div><span class="tom-craft-base-label">Craft time:</span> <span style="color:#e0e0e0">${fmtDuration(craftSecs)} total</span> <span style="color:#888;font-size:10px">→ ${craftWm.toFixed(1)} wm</span></div>`;
       if (recipe.yield > 1) {
         const perUnit = {};
         for (const [mat, amt] of Object.entries(baseCost))
@@ -653,14 +682,14 @@
               <span>${trade.offer_quantity.toLocaleString()} × ${fmtSlug(trade.offer_item)}</span>
             </div>
             <div class="tom-trade-breakdown">Materials: ${fmtBase(getVal.base)}</div>
-            ${getVal.craftSecs > 0 ? `<div class="tom-trade-breakdown">Craft time: ${getVal.craftSecs}s → ${getVal.craftWm.toFixed(1)} wm</div>` : ""}
+            ${getVal.craftSecs > 0 ? `<div class="tom-trade-breakdown">Craft time: ${fmtDuration(getVal.craftSecs)} → ${getVal.craftWm.toFixed(1)} wm</div>` : ""}
             <div class="tom-trade-wm">Total: <strong>${Math.round(getVal.wm).toLocaleString()} wm</strong>${getVal.craftSecs > 0 ? ` <span style="color:#555">(${Math.round(getVal.matWm)} mat + ${Math.round(getVal.craftWm)} time)</span>` : ""}</div>
             <div class="tom-trade-result-row" style="margin-top:6px">
               <span class="tom-trade-side tom-trade-give">GIVE</span>
               <span>${trade.taker_quantity.toLocaleString()} × ${fmtSlug(trade.taker_item)}</span>
             </div>
             <div class="tom-trade-breakdown">Materials: ${fmtBase(giveVal.base)}</div>
-            ${giveVal.craftSecs > 0 ? `<div class="tom-trade-breakdown">Craft time: ${giveVal.craftSecs}s → ${giveVal.craftWm.toFixed(1)} wm</div>` : ""}
+            ${giveVal.craftSecs > 0 ? `<div class="tom-trade-breakdown">Craft time: ${fmtDuration(giveVal.craftSecs)} → ${giveVal.craftWm.toFixed(1)} wm</div>` : ""}
             <div class="tom-trade-wm">Total: <strong>${Math.round(giveVal.wm).toLocaleString()} wm</strong>${giveVal.craftSecs > 0 ? ` <span style="color:#555">(${Math.round(giveVal.matWm)} mat + ${Math.round(giveVal.craftWm)} time)</span>` : ""}</div>
             <div class="tom-trade-verdict ${vClass}">
               ${verdict} — ${favorStr}

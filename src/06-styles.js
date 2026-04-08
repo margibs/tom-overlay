@@ -339,6 +339,14 @@ function injectStyles() {
       .tom-trade-risky { background: rgba(251,191,36,0.15); color: #fbbf24; }
       .tom-trade-bad { background: rgba(239,68,68,0.15); color: #ef4444; }
       .tom-trade-unknown { color: #fb923c; font-size: 11px; padding: 6px 0; }
+      .tom-trade-fair-suggest {
+        margin-top: 8px;
+        padding: 6px 8px;
+        background: rgba(251,191,36,0.08);
+        border-left: 2px solid #fbbf24;
+        color: #e9c176;
+        font-size: 11px;
+      }
       .tom-trade-gold-row {
         display: flex;
         align-items: center;
