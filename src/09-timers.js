@@ -37,9 +37,20 @@
     const section = document.getElementById("tom-aq-section");
     if (!section) return;
 
-    const timers = getActiveTimers().filter(
+    const allCraftTimers = getActiveTimers().filter(
       (t) => t.callbackArgs?.recipeName && t.callbackArgs?.buildingId,
     );
+    // Deduplicate by buildingId — keep only the soonest-finishing entry per building
+    const byBuilding = new Map();
+    for (const t of allCraftTimers) {
+      const bid = t.callbackArgs.buildingId;
+      const finish = t.callbackArgs.finishTime || t.timestamp || 0;
+      const existing = byBuilding.get(bid);
+      if (!existing || finish < (existing.callbackArgs.finishTime || existing.timestamp || 0)) {
+        byBuilding.set(bid, t);
+      }
+    }
+    const timers = [...byBuilding.values()];
     const now = Math.floor(Date.now() / 1000);
 
     // Build a key representing the current set of active crafting jobs
