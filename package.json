@@ -2,7 +2,7 @@
   "name": "tribes-of-malaya-overlay",
   "version": "1.5.1",
   "description": "Build tooling for the Tribes of Malaya browser overlay userscript",
-  "private": true,
+  "license": "MIT",
   "scripts": {
     "build": "node build.js",
     "build:min": "node build.js --minify",

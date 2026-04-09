@@ -1,5 +1,7 @@
 # Tribes of Malaya — Worker Overlay
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 A Tampermonkey userscript that adds a HUD overlay to [Tribes of Malaya](https://war.add.ph). It intercepts the game's API and shows town data in real time — no page reload needed.
 
 ## Features
