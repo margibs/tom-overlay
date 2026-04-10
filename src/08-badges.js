@@ -60,7 +60,7 @@
     for (const p of parsed.allPopulations) {
       if (p.type.includes("warrior") || p.type.includes("spearman"))
         troopByBuilding["training_grounds"] = p;
-      if (p.type.includes("musketeer") || p.type.includes("bowman"))
+      if (p.type.includes("musketeer") || p.type.includes("archer"))
         troopByBuilding["archery_grounds"] = p;
     }
 
