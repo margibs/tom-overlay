@@ -55,11 +55,13 @@
         .map((t) => String(t.callbackArgs.buildingId)),
     );
 
-    // Per-building trainable: training_grounds → Gagandilan, archery_grounds → Musketeer
+    // Per-building trainable: training_grounds → melee troops, archery_grounds → ranged troops
     const troopByBuilding = {};
     for (const p of parsed.allPopulations) {
-      if (p.type.includes("warrior")) troopByBuilding["training_grounds"] = p;
-      if (p.type.includes("musketeer")) troopByBuilding["archery_grounds"] = p;
+      if (p.type.includes("warrior") || p.type.includes("spearman"))
+        troopByBuilding["training_grounds"] = p;
+      if (p.type.includes("musketeer") || p.type.includes("bowman"))
+        troopByBuilding["archery_grounds"] = p;
     }
 
     // Build set of building IDs with active crafting timers
