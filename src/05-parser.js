@@ -28,6 +28,7 @@
   function parseTownData(data) {
     if (data.owner?.tribe && !userTribe) {
       userTribe = data.owner.tribe.toLowerCase();
+      invalidateRecipeCaches();
     }
 
     const summary = {
@@ -108,6 +109,7 @@
     const assignedBuildings = [];
     const underConstruction = [];
     const allBuildings = [];
+    const buildingMap = {};
 
     for (const tile of data.tiles) {
       if (!tile.building) continue;
@@ -125,23 +127,16 @@
       allBuildings.push(entry);
       if (b.assignee_count > 0) assignedBuildings.push(entry);
       if (b.builders_count > 0) underConstruction.push(entry);
+      buildingMap[b.id] = {
+        id: b.id,
+        x: tile.x,
+        y: tile.y,
+        slug: b.slug,
+        builders: b.builders_count,
+      };
     }
 
     assignedBuildings.sort((a, b) => b.assignees - a.assignees);
-
-    // Build a buildingId → (x,y) lookup
-    const buildingMap = {};
-    for (const tile of data.tiles) {
-      if (tile.building) {
-        buildingMap[tile.building.id] = {
-          id: tile.building.id,
-          x: tile.x,
-          y: tile.y,
-          slug: tile.building.slug,
-          builders: tile.building.builders_count,
-        };
-      }
-    }
 
     return {
       summary,

@@ -215,16 +215,22 @@ function injectStyles() {
       .tom-craft-step-label { color: #a855f7; font-weight: 600; }
       .tom-craft-step-external { border-left-color: #fb923c; }
       .tom-craft-step-acquire { color: #fb923c; font-weight: 600; }
-      .tom-craft-search {
+      .tom-search-input {
         width: 100%;
         background: rgba(255,255,255,0.08);
         border: 1px solid rgba(255,255,255,0.15);
         color: #e0e0e0;
         font-size: 12px;
         border-radius: 4px;
-        padding: 4px 8px;
+        padding: 5px 8px;
         box-sizing: border-box;
         outline: none;
+        font-family: 'Work Sans', system-ui, sans-serif;
+      }
+      .tom-search-input::placeholder { color: #777; }
+      .tom-search-input:focus { border-color: #fbbf24; }
+      .tom-craft-search {
+        padding: 4px 8px;
       }
       .tom-craft-search:focus { border-color: #a855f7; }
       .tom-craft-base {
@@ -455,20 +461,8 @@ function injectStyles() {
       }
       .tom-bld-tab-btn:hover { background: rgba(255,255,255,0.12); color: #ddd; }
       .tom-bld-tab-btn.active { background: #fbbf24; color: #1a1a1a; }
-      .tom-bld-search {
-        width: 100%;
-        background: rgba(255,255,255,0.08);
-        border: 1px solid rgba(255,255,255,0.15);
-        color: #e0e0e0;
-        font-size: 12px;
-        border-radius: 4px;
-        padding: 5px 8px;
-        box-sizing: border-box;
-        outline: none;
-        font-family: 'Work Sans', system-ui, sans-serif;
-      }
+      .tom-bld-search { /* extends .tom-search-input */ }
       .tom-bld-search:focus { border-color: #fbbf24; }
-      .tom-bld-search::placeholder { color: #777; }
       .tom-bld-hidden { display: none !important; }
       .tom-bld-no-results {
         grid-column: 1 / -1; text-align: center; color: #888;
@@ -481,20 +475,8 @@ function injectStyles() {
         display: flex; flex-direction: column; gap: 6px; padding: 6px 10px 8px;
         background: rgba(0,0,0,0.4); border-radius: 6px; margin: 4px 0 8px;
       }
-      .tom-cft-search {
-        width: 100%;
-        background: rgba(255,255,255,0.08);
-        border: 1px solid rgba(255,255,255,0.15);
-        color: #e0e0e0;
-        font-size: 12px;
-        border-radius: 4px;
-        padding: 5px 8px;
-        box-sizing: border-box;
-        outline: none;
-        font-family: 'Work Sans', system-ui, sans-serif;
-      }
+      .tom-cft-search { /* extends .tom-search-input */ }
       .tom-cft-search:focus { border-color: #fbbf24; }
-      .tom-cft-search::placeholder { color: #777; }
       .tom-cft-sort-row {
         display: flex; gap: 4px; flex-wrap: wrap;
       }

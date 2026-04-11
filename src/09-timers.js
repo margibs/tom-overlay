@@ -1,10 +1,15 @@
   // --- Timers ---
   let timerInterval = null;
+  let _cachedTimers = null;
+  let _cachedTimersTick = -1;
 
   function getActiveTimers() {
+    const tick = currentTick();
+    if (_cachedTimersTick === tick && _cachedTimers !== null) return _cachedTimers;
+    _cachedTimersTick = tick;
     try {
       const raw = localStorage.getItem("persist:timer");
-      if (!raw) return [];
+      if (!raw) { _cachedTimers = []; return _cachedTimers; }
       const parsed = JSON.parse(raw);
       const timers = JSON.parse(parsed.timers || "{}");
       const allTimers = [];
@@ -13,8 +18,10 @@
           allTimers.push(...timers[userId]);
         }
       }
+      _cachedTimers = allTimers;
       return allTimers;
     } catch (e) {
+      _cachedTimers = [];
       return [];
     }
   }
@@ -149,17 +156,48 @@
     }
   }
 
+  let lastTimerBadgeKey = "";
+
   function renderTimerBadges(
     buildingMap,
     tilePositions,
     gridContainer,
     parsed,
   ) {
-    document.querySelectorAll(".tom-timer-badge").forEach((el) => el.remove());
     if (!gridContainer) return;
 
     const timers = getActiveTimers();
     const now = Math.floor(Date.now() / 1000);
+
+    // Build fingerprint for change detection
+    const timerBadgeKey = timers
+      .filter((t) => t.callbackArgs?.buildingId || t.callbackType === "addResearchedTech")
+      .map((t) => `${t.callbackArgs?.buildingId || "r"}-${t.callbackArgs?.finishTime || t.timestamp}`)
+      .sort()
+      .join("|");
+
+    // If timer set unchanged, just update countdowns in-place
+    if (timerBadgeKey === lastTimerBadgeKey && timerBadgeKey !== "") {
+      gridContainer.querySelectorAll(".tom-timer-badge .tom-badge-time[data-finish]").forEach((el) => {
+        const finish = parseInt(el.dataset.finish, 10);
+        el.textContent = formatCountdown(Math.max(0, finish - now));
+      });
+      // Update progress bars
+      gridContainer.querySelectorAll(".tom-timer-badge [data-pct-start]").forEach((fill) => {
+        const start = parseInt(fill.dataset.pctStart, 10);
+        const finish = parseInt(fill.dataset.pctFinish, 10);
+        const total = finish - start;
+        const pct = total > 0 ? Math.min(100, Math.max(0, ((now - start) / total) * 100)) : 0;
+        fill.style.width = Math.max(3, pct).toFixed(1) + "%";
+        const isUrgent = (finish - now) > 0 && total > 0 && (finish - now) < total * 0.25;
+        fill.style.boxShadow = isUrgent ? "0 0 3px rgba(255,180,171,0.4)" : "";
+      });
+      return;
+    }
+    lastTimerBadgeKey = timerBadgeKey;
+
+    // Full rebuild
+    document.querySelectorAll(".tom-timer-badge").forEach((el) => el.remove());
 
     // Worker lookup from parsed data (id → building info)
     const workerById = {};
@@ -243,6 +281,7 @@
       // Time text
       const timeEl = document.createElement("span");
       timeEl.className = "tom-badge-time";
+      timeEl.dataset.finish = finishTime;
       timeEl.textContent = formatCountdown(remaining);
       badge.appendChild(timeEl);
 
@@ -271,6 +310,8 @@
       fill.style.height = "100%";
       fill.style.borderRadius = "2px";
       fill.style.background = color;
+      fill.dataset.pctStart = timerFirstSeen[fsKey];
+      fill.dataset.pctFinish = finishTime;
       if (isUrgent) fill.style.boxShadow = "0 0 3px rgba(255,180,171,0.4)";
       track.appendChild(fill);
       barRow.appendChild(track);
@@ -287,12 +328,7 @@
       if ((assignees > 0 && lvl > 0) || craftIdle) {
         const ratio = lvl > 0 ? assignees / lvl : 0;
         const isFull = ratio >= 1;
-        let wColor = "#ef4444";
-        if (craftIdle && assignees <= 0) wColor = "#fb923c";
-        else if (isFull && !craftIdle) wColor = "#fff";
-        else if (isFull && craftIdle) wColor = "#fb923c";
-        else if (ratio >= 0.75) wColor = "#4ade80";
-        else if (ratio >= 0.4) wColor = "#fb923c";
+        const wColor = getWorkerColor(ratio, isFull, craftIdle, assignees);
         let wText = "";
         if (assignees > 0) {
           wText = isFull ? "Full!" : `${assignees}/${lvl}`;
@@ -352,6 +388,7 @@
 
             const timeEl = document.createElement("span");
             timeEl.className = "tom-badge-time";
+            timeEl.dataset.finish = t.timestamp || 0;
             timeEl.textContent = formatCountdown(remaining);
             badge.appendChild(timeEl);
 
@@ -367,6 +404,8 @@
             fill.style.height = "100%";
             fill.style.borderRadius = "2px";
             fill.style.background = rColor;
+            fill.dataset.pctStart = timerFirstSeen[rfsKey];
+            fill.dataset.pctFinish = t.timestamp;
             if (rUrgent) fill.style.boxShadow = "0 0 3px rgba(255,180,171,0.4)";
             track.appendChild(fill);
             badge.appendChild(track);

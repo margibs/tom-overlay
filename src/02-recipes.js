@@ -211,13 +211,20 @@ const TRIBE_EXCLUSIVE = {
 
 // Recipes the current user's tribe cannot craft (computed from userTribe).
 // Falls back to locking all tribe-exclusive recipes if tribe is not yet detected.
+let _tribeLocked = null, _tribeLockedFor = undefined;
 function getTribeLocked() {
-  if (!userTribe) return new Set(Object.keys(TRIBE_EXCLUSIVE));
-  return new Set(
-    Object.entries(TRIBE_EXCLUSIVE)
-      .filter(([, owner]) => owner !== userTribe)
-      .map(([slug]) => slug),
-  );
+  if (_tribeLockedFor === userTribe) return _tribeLocked;
+  _tribeLockedFor = userTribe;
+  if (!userTribe) {
+    _tribeLocked = new Set(Object.keys(TRIBE_EXCLUSIVE));
+  } else {
+    _tribeLocked = new Set(
+      Object.entries(TRIBE_EXCLUSIVE)
+        .filter(([, owner]) => owner !== userTribe)
+        .map(([slug]) => slug),
+    );
+  }
+  return _tribeLocked;
 }
 
 function canCraftRecipe(slug) {
@@ -231,7 +238,15 @@ for (const r of CRAFT_RECIPES) recipeBySlug[r.slug] = r;
 // Resolve base material cost for one craft of a recipe.
 // Always resolves through the full recipe chain (including tribe-locked steps)
 // to show the true raw material equivalent. getCraftSteps handles tribe-lock display.
+const _resolveCache = new Map();
+function invalidateRecipeCaches() {
+  _resolveCache.clear();
+  _tribeLocked = null;
+  _tribeLockedFor = undefined;
+}
 function resolveBaseCost(recipe) {
+  const cached = _resolveCache.get(recipe.slug);
+  if (cached) return cached;
   const base = {};
   for (const ing of recipe.ingredients) {
     const sub = recipeBySlug[ing.slug];
@@ -245,6 +260,7 @@ function resolveBaseCost(recipe) {
       }
     }
   }
+  _resolveCache.set(recipe.slug, base);
   return base;
 }
 

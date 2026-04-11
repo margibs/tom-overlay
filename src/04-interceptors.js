@@ -32,7 +32,7 @@
             notifyListeners(json);
           }
         })
-        .catch(() => {});
+        .catch((e) => console.warn("[TOM]", e));
     }
 
     if (/\/buildings\/\d+\/trades/.test(url)) {
@@ -45,7 +45,7 @@
             renderAll();
           }
         })
-        .catch(() => {});
+        .catch((e) => console.warn("[TOM]", e));
     }
 
     return response;
@@ -75,7 +75,7 @@
             }
             notifyListeners(json);
           }
-        } catch (e) {}
+        } catch (e) { console.warn("[TOM]", e); }
       });
     } else if (
       this._tomUrl &&
@@ -85,7 +85,7 @@
       let reqBody = null;
       try {
         reqBody = JSON.parse(args[0]);
-      } catch (e) {}
+      } catch (e) { console.warn("[TOM]", e); }
       if (reqBody) {
         this.addEventListener("load", function () {
           try {
@@ -102,7 +102,7 @@
               rebuildDerived();
               renderAll();
             }
-          } catch (e) {}
+          } catch (e) { console.warn("[TOM]", e); }
         });
       }
     } else if (
@@ -130,7 +130,7 @@
               renderAll();
             }
           }
-        } catch (e) {}
+        } catch (e) { console.warn("[TOM]", e); }
       });
     } else if (
       this._tomUrl &&
@@ -144,7 +144,7 @@
             lastMarketTrades = json;
             renderAll();
           }
-        } catch (e) {}
+        } catch (e) { console.warn("[TOM]", e); }
       });
     }
     return originalSend.apply(this, args);

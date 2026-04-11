@@ -1,7 +1,17 @@
   // --- Grid Badges ---
   let badgeRetries = 0;
+  let lastBadgeKey = "";
 
   function renderBadges(parsed) {
+    // Fingerprint: assigned buildings + populations for change detection
+    const badgeKey = parsed.assignedBuildings
+      .map((b) => `${b.id}:${b.assignees}`)
+      .join("|") + "~" + parsed.allPopulations
+      .map((p) => `${p.type}:${p.idle}:${p.trainable}`)
+      .join("|");
+    if (badgeKey === lastBadgeKey) return;
+    lastBadgeKey = badgeKey;
+
     // Remove old cards
     document.querySelectorAll(".tom-worker-label").forEach((el) => el.remove());
 
@@ -20,20 +30,7 @@
     }
     badgeRetries = 0;
 
-    // Build a left/top lookup from tile-overlay elements
-    // Tiles are ordered column-major: index = x * 9 + y
-    const tileEls = document.querySelectorAll(".tile-overlay");
-    const tilePositions = {};
-    tileEls.forEach((el, i) => {
-      const x = Math.floor(i / 9);
-      const y = i % 9;
-      tilePositions[`${x},${y}`] = { left: el.style.left, top: el.style.top };
-    });
-
-    function getLevel(slug) {
-      const m = slug.match(/(\d+)$/);
-      return m ? parseInt(m[1]) : 1;
-    }
+    const tilePositions = getSharedTilePositions();
 
     // Build lookups
     const workerLookup = {};
@@ -79,7 +76,7 @@
 
       const left = parseInt(pos.left, 10);
       const top = parseInt(pos.top, 10);
-      const lvl = getLevel(tile.slug);
+      const lvl = getBuildingLevel(tile.slug);
       const maxWorkers = lvl;
       const key = `${tile.x},${tile.y}`;
       const wk = workerLookup[key];
@@ -115,12 +112,7 @@
         displayText = "No Craft";
       }
 
-      let txtColor = "#ef4444";
-      if (craftIdle && assignees <= 0) txtColor = "#fb923c";
-      else if (isFull && !craftIdle) txtColor = "#fff";
-      else if (isFull && craftIdle) txtColor = "#fb923c";
-      else if (ratio >= 0.75) txtColor = "#4ade80";
-      else if (ratio >= 0.4) txtColor = "#fb923c";
+      const txtColor = getWorkerColor(ratio, isFull, craftIdle, assignees);
 
       const txt = document.createElement("span");
       txt.style.fontFamily = "'Work Sans', system-ui, sans-serif";

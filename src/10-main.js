@@ -7,7 +7,6 @@ function domReady(fn) {
 // Shared state
 let lastParsed = null;
 let lastBuildingMap = {};
-let lastTilePositions = {};
 let lastGridContainer = null;
 
 function rebuildDerived() {
@@ -26,7 +25,10 @@ function rebuildDerived() {
 
 function renderAll() {
   if (!lastParsed) return;
+  rebuildTilePositions();
   renderPanel(lastParsed);
+  lastBadgeKey = ""; // force badge rebuild on data change
+  lastTimerBadgeKey = ""; // force timer badge rebuild on data change
   renderBadges(lastParsed);
   lastBuildingMap = lastParsed.buildingMap;
 }
@@ -51,28 +53,22 @@ domReady(() => {
 
   // Update timer badges every second
   timerInterval = setInterval(() => {
+    advanceTick();
+
     if (!lastGridContainer) {
       lastGridContainer = document.querySelector(".town-grid-content");
     }
     if (!lastGridContainer) return;
 
-    // Rebuild tile positions if needed
-    if (Object.keys(lastTilePositions).length === 0) {
-      const tileEls = document.querySelectorAll(".tile-overlay");
-      tileEls.forEach((el, i) => {
-        const x = Math.floor(i / 9);
-        const y = i % 9;
-        lastTilePositions[`${x},${y}`] = {
-          left: el.style.left,
-          top: el.style.top,
-        };
-      });
+    // Rebuild shared tile positions if needed
+    if (Object.keys(getSharedTilePositions()).length === 0) {
+      rebuildTilePositions();
     }
 
     checkExpiredTimers();
     renderTimerBadges(
       lastBuildingMap,
-      lastTilePositions,
+      getSharedTilePositions(),
       lastGridContainer,
       lastParsed,
     );

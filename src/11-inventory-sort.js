@@ -77,6 +77,8 @@ function getDisplayName(slug) {
   return ITEM_NAMES[slug] || slug.replace(/_/g, " ");
 }
 
+const _invSortRef = { get value() { return invCurrentSort; }, set value(v) { invCurrentSort = v; } };
+
 function buildSortBar(grid) {
   const bar = document.createElement("div");
   bar.className = "tom-inv-sort-bar";
@@ -88,38 +90,7 @@ function buildSortBar(grid) {
     { key: "category", label: "Category" },
   ];
 
-  modes.forEach((mode) => {
-    const btn = document.createElement("button");
-    const isToggle = mode.asc && mode.desc;
-    const currentDir = isToggle && invCurrentSort === mode.desc ? "desc"
-      : isToggle && invCurrentSort === mode.asc ? "asc" : null;
-    btn.className =
-      "tom-inv-sort-btn" +
-      (currentDir || invCurrentSort === mode.key ? " active" : "");
-    if (isToggle) {
-      btn.textContent = mode.label + " " + (currentDir === "asc" ? "\u2191" : "\u2193");
-    } else {
-      btn.textContent = mode.label;
-    }
-    btn.addEventListener("click", () => {
-      bar
-        .querySelectorAll(".tom-inv-sort-btn")
-        .forEach((b) => b.classList.remove("active"));
-      btn.classList.add("active");
-      if (isToggle) {
-        const wasDir = invCurrentSort === mode.desc ? "desc"
-          : invCurrentSort === mode.asc ? "asc" : null;
-        const newDir = wasDir === "desc" ? "asc" : "desc";
-        invCurrentSort = newDir === "desc" ? mode.desc : mode.asc;
-        btn.textContent = mode.label + " " + (newDir === "asc" ? "\u2191" : "\u2193");
-      } else {
-        invCurrentSort = mode.key;
-      }
-      applySort(grid, invCurrentSort);
-    });
-    bar.appendChild(btn);
-  });
-
+  buildToggleSortButtons(bar, modes, _invSortRef, () => applySort(grid, invCurrentSort), "tom-inv-sort-btn");
   return bar;
 }
 
@@ -160,21 +131,7 @@ function applySort(grid, sortType) {
 
   // Re-append filled items
   if (sortType === "category") {
-    let lastGroup = null;
-    filled.forEach((el) => {
-      const cat = ITEM_CATEGORY[getSlug(el)] || {
-        group: "Other",
-        order: 99,
-      };
-      if (cat.group !== lastGroup) {
-        const divider = document.createElement("div");
-        divider.className = "tom-inv-cat-divider";
-        divider.textContent = cat.group;
-        grid.appendChild(divider);
-        lastGroup = cat.group;
-      }
-      grid.appendChild(el);
-    });
+    insertCategoryDividers(grid, filled, (el) => ITEM_CATEGORY[getSlug(el)] || { group: "Other", order: 99 }, "tom-inv-cat-divider");
   } else {
     filled.forEach((el) => grid.appendChild(el));
   }
@@ -216,7 +173,6 @@ function handleTownItemsModal(modal) {
 
   // Watch for React re-renders that replace inventory children
   const gridObserver = new MutationObserver(() => {
-    // Re-stamp and re-format any new items without tomOrigIdx
     const freshItems = grid.querySelectorAll(
       ".inventory-item:not(.empty-slot)",
     );
@@ -240,22 +196,6 @@ function handleTownItemsModal(modal) {
 }
 
 function initInventorySort() {
-  const observer = new MutationObserver((mutations) => {
-    for (const m of mutations) {
-      for (const node of m.addedNodes) {
-        if (node.nodeType !== 1) continue;
-        const modal = node.classList?.contains("modal-overlay")
-          ? node
-          : node.querySelector?.(".modal-overlay");
-        if (!modal) continue;
-        const h2 = modal.querySelector("h2");
-        if (h2 && h2.textContent.trim() === "Town Items") {
-          // Defer to let React finish rendering
-          setTimeout(() => handleTownItemsModal(modal), 50);
-        }
-      }
-    }
-  });
-  observer.observe(document.body, { childList: true, subtree: true });
+  setupModalDetector("modal-overlay", (title) => title === "Town Items", handleTownItemsModal);
 }
 

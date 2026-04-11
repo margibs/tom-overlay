@@ -54,7 +54,7 @@ function buildBldToolbar(grid) {
   // Search input
   const search = document.createElement("input");
   search.type = "text";
-  search.className = "tom-bld-search";
+  search.className = "tom-search-input tom-bld-search";
   search.placeholder = "Search buildings\u2026";
   search.value = bldCurrentSearch;
   search.addEventListener("input", () => {
@@ -134,35 +134,9 @@ function handleConstructModal(modal) {
   applyBldFilters(grid);
 
   // Watch for React re-renders
-  const gridObserver = new MutationObserver(() => {
-    const freshCards = grid.querySelectorAll(".building-option");
-    let needsReapply = false;
-    freshCards.forEach((card, i) => {
-      if (!("tomOrigIdx" in card.dataset)) {
-        card.dataset.tomOrigIdx = i;
-        needsReapply = true;
-      }
-    });
-    if (needsReapply) applyBldFilters(grid);
-  });
-  gridObserver.observe(grid, { childList: true, subtree: true });
+  setupGridObserver(grid, ".building-option", () => applyBldFilters(grid));
 }
 
 function initBuildingSort() {
-  const observer = new MutationObserver((mutations) => {
-    for (const m of mutations) {
-      for (const node of m.addedNodes) {
-        if (node.nodeType !== 1) continue;
-        const modal = node.classList?.contains("modal-overlay")
-          ? node
-          : node.querySelector?.(".modal-overlay");
-        if (!modal) continue;
-        const h2 = modal.querySelector("h2");
-        if (h2 && h2.textContent.trim().startsWith("Construct Building")) {
-          setTimeout(() => handleConstructModal(modal), 50);
-        }
-      }
-    }
-  });
-  observer.observe(document.body, { childList: true, subtree: true });
+  setupModalDetector("modal-overlay", (title) => title.startsWith("Construct Building"), handleConstructModal);
 }

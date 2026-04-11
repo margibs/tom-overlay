@@ -53,6 +53,8 @@ function getCraftMaxQty(card) {
   return span ? parseInt(span.textContent.replace(/[\s,]/g, ""), 10) || 0 : 0;
 }
 
+const _cftSortRef = { get value() { return cftCurrentSort; }, set value(v) { cftCurrentSort = v; } };
+
 function buildCftToolbar(grid) {
   const toolbar = document.createElement("div");
   toolbar.className = "tom-cft-toolbar";
@@ -60,7 +62,7 @@ function buildCftToolbar(grid) {
   // Search input
   const search = document.createElement("input");
   search.type = "text";
-  search.className = "tom-cft-search";
+  search.className = "tom-search-input tom-cft-search";
   search.placeholder = "Search crafts\u2026";
   search.value = cftCurrentSearch;
   search.addEventListener("input", () => {
@@ -81,37 +83,7 @@ function buildCftToolbar(grid) {
     { key: "category", label: "Category" },
   ];
 
-  modes.forEach((mode) => {
-    const btn = document.createElement("button");
-    const isToggle = mode.asc && mode.desc;
-    const currentDir = isToggle && cftCurrentSort === mode.desc ? "desc"
-      : isToggle && cftCurrentSort === mode.asc ? "asc" : null;
-    btn.className =
-      "tom-cft-sort-btn" +
-      (currentDir || cftCurrentSort === mode.key ? " active" : "");
-    if (isToggle) {
-      btn.textContent = mode.label + " " + (currentDir === "asc" ? "\u2191" : "\u2193");
-    } else {
-      btn.textContent = mode.label;
-    }
-    btn.addEventListener("click", () => {
-      sortRow
-        .querySelectorAll(".tom-cft-sort-btn")
-        .forEach((b) => b.classList.remove("active"));
-      btn.classList.add("active");
-      if (isToggle) {
-        const wasDir = cftCurrentSort === mode.desc ? "desc"
-          : cftCurrentSort === mode.asc ? "asc" : null;
-        const newDir = wasDir === "desc" ? "asc" : "desc";
-        cftCurrentSort = newDir === "desc" ? mode.desc : mode.asc;
-        btn.textContent = mode.label + " " + (newDir === "asc" ? "\u2191" : "\u2193");
-      } else {
-        cftCurrentSort = mode.key;
-      }
-      applyCftFilters(grid);
-    });
-    sortRow.appendChild(btn);
-  });
+  buildToggleSortButtons(sortRow, modes, _cftSortRef, () => applyCftFilters(grid), "tom-cft-sort-btn");
 
   toolbar.appendChild(sortRow);
   return toolbar;
@@ -139,55 +111,51 @@ function applyCftFilters(grid) {
     }
   });
 
+  // Pre-cache sort values to avoid repeated DOM queries in comparator
+  const sortCache = new Map();
+  visible.forEach((card) => {
+    sortCache.set(card, {
+      name: getCraftName(card),
+      time: getCraftTimeSecs(card),
+      qty: getCraftMaxQty(card),
+      slug: getCraftItemSlug(card),
+      idx: parseInt(card.dataset.tomOrigIdx, 10),
+    });
+  });
+
   // Sort
   visible.sort((a, b) => {
+    const ca = sortCache.get(a), cb = sortCache.get(b);
     switch (cftCurrentSort) {
       case "name-asc":
-        return getCraftName(a).localeCompare(getCraftName(b));
+        return ca.name.localeCompare(cb.name);
       case "name-desc":
-        return getCraftName(b).localeCompare(getCraftName(a));
+        return cb.name.localeCompare(ca.name);
       case "time-asc":
-        return getCraftTimeSecs(a) - getCraftTimeSecs(b);
+        return ca.time - cb.time;
       case "time-desc":
-        return getCraftTimeSecs(b) - getCraftTimeSecs(a);
+        return cb.time - ca.time;
       case "cancraft-asc":
-        return getCraftMaxQty(a) - getCraftMaxQty(b);
+        return ca.qty - cb.qty;
       case "cancraft-desc":
-        return getCraftMaxQty(b) - getCraftMaxQty(a);
+        return cb.qty - ca.qty;
       case "category": {
-        const catA = ITEM_CATEGORY[getCraftItemSlug(a)] || { order: 99 };
-        const catB = ITEM_CATEGORY[getCraftItemSlug(b)] || { order: 99 };
+        const catA = ITEM_CATEGORY[ca.slug] || { order: 99 };
+        const catB = ITEM_CATEGORY[cb.slug] || { order: 99 };
         if (catA.order !== catB.order) return catA.order - catB.order;
-        return parseInt(a.dataset.tomOrigIdx, 10) - parseInt(b.dataset.tomOrigIdx, 10);
+        return ca.idx - cb.idx;
       }
       default:
-        return (
-          parseInt(a.dataset.tomOrigIdx, 10) -
-          parseInt(b.dataset.tomOrigIdx, 10)
-        );
+        return ca.idx - cb.idx;
     }
   });
 
   // Re-append with category dividers if needed
+  visible.forEach((card) => card.classList.remove("tom-cft-hidden"));
   if (cftCurrentSort === "category") {
-    let lastGroup = null;
-    visible.forEach((card) => {
-      card.classList.remove("tom-cft-hidden");
-      const cat = ITEM_CATEGORY[getCraftItemSlug(card)] || { group: "Other", order: 99 };
-      if (cat.group !== lastGroup) {
-        const divider = document.createElement("div");
-        divider.className = "tom-cft-cat-divider";
-        divider.textContent = cat.group;
-        grid.appendChild(divider);
-        lastGroup = cat.group;
-      }
-      grid.appendChild(card);
-    });
+    insertCategoryDividers(grid, visible, (card) => ITEM_CATEGORY[sortCache.get(card)?.slug || getCraftItemSlug(card)] || { group: "Other", order: 99 }, "tom-cft-cat-divider");
   } else {
-    visible.forEach((card) => {
-      card.classList.remove("tom-cft-hidden");
-      grid.appendChild(card);
-    });
+    visible.forEach((card) => grid.appendChild(card));
   }
 
   hidden.forEach((card) => {
@@ -226,37 +194,11 @@ function handleCrafterPanel(panel) {
   }
 
   // Watch for React re-renders
-  const gridObserver = new MutationObserver(() => {
-    const freshCards = grid.querySelectorAll(".building-option");
-    let needsReapply = false;
-    freshCards.forEach((card, i) => {
-      if (!card.dataset.tomOrigIdx) {
-        card.dataset.tomOrigIdx = i;
-        needsReapply = true;
-      }
-    });
-    if (needsReapply && (cftCurrentSort !== "default" || cftCurrentSearch)) {
-      applyCftFilters(grid);
-    }
+  setupGridObserver(grid, ".building-option", () => {
+    if (cftCurrentSort !== "default" || cftCurrentSearch) applyCftFilters(grid);
   });
-  gridObserver.observe(grid, { childList: true, subtree: true });
 }
 
 function initCrafterSort() {
-  const observer = new MutationObserver((mutations) => {
-    for (const m of mutations) {
-      for (const node of m.addedNodes) {
-        if (node.nodeType !== 1) continue;
-        const panel = node.classList?.contains("right-sidebar")
-          ? node
-          : node.querySelector?.(".right-sidebar");
-        if (!panel) continue;
-        const h2 = panel.querySelector("h2");
-        if (h2 && /^crafter/i.test(h2.textContent.trim())) {
-          setTimeout(() => handleCrafterPanel(panel), 50);
-        }
-      }
-    }
-  });
-  observer.observe(document.body, { childList: true, subtree: true });
+  setupModalDetector("right-sidebar", (title) => /^crafter/i.test(title), handleCrafterPanel);
 }
