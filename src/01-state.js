@@ -1,4 +1,4 @@
-  const VERSION = "1.5.5"; // keep in sync with @version in 00-header.js
+  const VERSION = "1.5.6"; // keep in sync with @version in 00-header.js
 
   let townData = null;
   let userTribe = null; // detected from owner.tribe in town API
@@ -21,7 +21,11 @@
     tileEls.forEach((el, i) => {
       const x = Math.floor(i / 9);
       const y = i % 9;
-      _sharedTilePositions[`${x},${y}`] = { left: el.style.left, top: el.style.top };
+      _sharedTilePositions[`${x},${y}`] = {
+        left: el.style.left,
+        top: el.style.top,
+        bottom: el.style.bottom,
+      };
     });
   }
   function getSharedTilePositions() { return _sharedTilePositions; }

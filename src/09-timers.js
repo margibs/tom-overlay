@@ -253,7 +253,8 @@
     for (const [buildingId, entry] of Object.entries(bestTimer)) {
       const { timer, args, building, pos, icon, color: baseColor } = entry;
       const left = parseInt(pos.left, 10);
-      const top = parseInt(pos.top, 10);
+      const topRaw = parseInt(pos.top, 10);
+      const bottomRaw = parseInt(pos.bottom, 10);
 
       const finishTime = args.finishTime || timer.timestamp;
       if (!finishTime) continue;
@@ -347,8 +348,12 @@
         badge.appendChild(wEl);
       }
 
-      badge.style.left = left + 62 + "px";
-      badge.style.top = top - 8 + "px";
+      badge.style.left = left + 60 + "px";
+      if (!Number.isNaN(bottomRaw)) {
+        badge.style.bottom = bottomRaw + 80 + "px";
+      } else {
+        badge.style.top = topRaw - 8 + "px";
+      }
       gridContainer.appendChild(badge);
     }
 
@@ -364,7 +369,8 @@
         const pos = tilePositions[`${academy.x},${academy.y}`];
         if (pos) {
           const left = parseInt(pos.left, 10);
-          const top = parseInt(pos.top, 10);
+          const topRaw = parseInt(pos.top, 10);
+          const bottomRaw = parseInt(pos.bottom, 10);
           const badge = document.createElement("div");
           badge.className = "tom-timer-badge";
           for (const t of researchTimers) {
@@ -410,8 +416,12 @@
             track.appendChild(fill);
             badge.appendChild(track);
           }
-          badge.style.left = left + 62 + "px";
-          badge.style.top = top - 8 + "px";
+          badge.style.left = left + 60 + "px";
+          if (!Number.isNaN(bottomRaw)) {
+            badge.style.bottom = bottomRaw + 80 + "px";
+          } else {
+            badge.style.top = topRaw - 8 + "px";
+          }
           gridContainer.appendChild(badge);
         }
       }

@@ -75,7 +75,8 @@
       if (!pos) continue;
 
       const left = parseInt(pos.left, 10);
-      const top = parseInt(pos.top, 10);
+      const bottomRaw = parseInt(pos.bottom, 10);
+      const topRaw = parseInt(pos.top, 10);
       const lvl = getBuildingLevel(tile.slug);
       const maxWorkers = lvl;
       const key = `${tile.x},${tile.y}`;
@@ -143,8 +144,12 @@
         label.appendChild(trainEl);
       }
 
-      label.style.left = left + 62 + "px";
-      label.style.top = top + 2 + "px";
+      label.style.left = left + 60 + "px";
+      if (!Number.isNaN(bottomRaw)) {
+        label.style.bottom = bottomRaw + 70 + "px";
+      } else {
+        label.style.top = topRaw + 2 + "px";
+      }
       gridContainer.appendChild(label);
     }
   }
