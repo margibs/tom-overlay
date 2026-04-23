@@ -93,7 +93,7 @@
       label.className = "tom-worker-label";
       label.style.position = "absolute";
       label.style.pointerEvents = "none";
-      label.style.zIndex = "20001";
+      label.style.zIndex = "2147483646";
       label.style.transform = "translateX(-50%)";
       label.style.display = "flex";
       label.style.flexDirection = "column";
@@ -146,7 +146,7 @@
 
       label.style.left = left + 60 + "px";
       if (!Number.isNaN(bottomRaw)) {
-        label.style.bottom = bottomRaw + 70 + "px";
+        label.style.bottom = bottomRaw + 50 + "px";
       } else {
         label.style.top = topRaw + 2 + "px";
       }

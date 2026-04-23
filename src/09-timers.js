@@ -350,7 +350,7 @@
 
       badge.style.left = left + 60 + "px";
       if (!Number.isNaN(bottomRaw)) {
-        badge.style.bottom = bottomRaw + 80 + "px";
+        badge.style.bottom = bottomRaw + 60 + "px";
       } else {
         badge.style.top = topRaw - 8 + "px";
       }
@@ -418,7 +418,7 @@
           }
           badge.style.left = left + 60 + "px";
           if (!Number.isNaN(bottomRaw)) {
-            badge.style.bottom = bottomRaw + 80 + "px";
+            badge.style.bottom = bottomRaw + 60 + "px";
           } else {
             badge.style.top = topRaw - 8 + "px";
           }

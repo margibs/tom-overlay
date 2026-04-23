@@ -121,7 +121,7 @@ function injectStyles() {
         position: absolute;
         background: none;
         pointer-events: none;
-        z-index: 20001;
+        z-index: 2147483646;
         transform: translateX(-50%);
         display: flex;
         flex-direction: column;

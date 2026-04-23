@@ -863,7 +863,7 @@ function injectStyles() {
         position: absolute;
         background: none;
         pointer-events: none;
-        z-index: 20001;
+        z-index: 2147483646;
         transform: translateX(-50%);
         display: flex;
         flex-direction: column;
@@ -2079,7 +2079,7 @@ function injectStyles() {
       label.className = "tom-worker-label";
       label.style.position = "absolute";
       label.style.pointerEvents = "none";
-      label.style.zIndex = "20001";
+      label.style.zIndex = "2147483646";
       label.style.transform = "translateX(-50%)";
       label.style.display = "flex";
       label.style.flexDirection = "column";
@@ -2132,7 +2132,7 @@ function injectStyles() {
 
       label.style.left = left + 60 + "px";
       if (!Number.isNaN(bottomRaw)) {
-        label.style.bottom = bottomRaw + 70 + "px";
+        label.style.bottom = bottomRaw + 50 + "px";
       } else {
         label.style.top = topRaw + 2 + "px";
       }
@@ -2492,7 +2492,7 @@ function injectStyles() {
 
       badge.style.left = left + 60 + "px";
       if (!Number.isNaN(bottomRaw)) {
-        badge.style.bottom = bottomRaw + 80 + "px";
+        badge.style.bottom = bottomRaw + 60 + "px";
       } else {
         badge.style.top = topRaw - 8 + "px";
       }
@@ -2560,7 +2560,7 @@ function injectStyles() {
           }
           badge.style.left = left + 60 + "px";
           if (!Number.isNaN(bottomRaw)) {
-            badge.style.bottom = bottomRaw + 80 + "px";
+            badge.style.bottom = bottomRaw + 60 + "px";
           } else {
             badge.style.top = topRaw - 8 + "px";
           }
