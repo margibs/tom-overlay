@@ -9,29 +9,48 @@
     });
   }
 
+  let _rearrangeOverlay = null;
+
   function removeSwapHighlight() {
     document.querySelectorAll(".tom-swap-highlight").forEach((el) => el.remove());
   }
 
-  function onTileRearrangeClick(e) {
-    e.stopPropagation();
-    const x = parseInt(this.dataset.tomX);
-    const y = parseInt(this.dataset.tomY);
-    const key = `${x},${y}`;
+  function nearestTileKey(clickX, clickY, containerH) {
+    const tilePositions = getSharedTilePositions();
+    let bestKey = null;
+    let bestDist = Infinity;
+    for (const [key, pos] of Object.entries(tilePositions)) {
+      const tx = parseInt(pos.left);
+      const ty = pos.bottom
+        ? containerH - parseInt(pos.bottom) - 15
+        : parseInt(pos.top) + 15;
+      const d = (clickX - tx) ** 2 + (clickY - ty) ** 2;
+      if (d < bestDist) { bestDist = d; bestKey = key; }
+    }
+    return bestKey;
+  }
+
+  function onGridRearrangeClick(e) {
+    const rect = _rearrangeOverlay.getBoundingClientRect();
+    const clickX = e.clientX - rect.left;
+    const clickY = e.clientY - rect.top;
+    const containerH = _rearrangeOverlay.offsetHeight;
+    const bestKey = nearestTileKey(clickX, clickY, containerH);
+    if (!bestKey) return;
+    const [x, y] = bestKey.split(",").map(Number);
+    const key = bestKey;
 
     if (!pendingSwapTile) {
       pendingSwapTile = { x, y };
-      const tilePositions = getSharedTilePositions();
-      const pos = tilePositions[key];
-      const gridContainer = document.querySelector(".town-grid-content");
-      if (pos && gridContainer) {
-        removeSwapHighlight();
+      removeSwapHighlight();
+      const pos = getSharedTilePositions()[key];
+      if (pos) {
         const hl = document.createElement("div");
         hl.className = "tom-swap-highlight";
         hl.style.left = parseInt(pos.left) + 60 + "px";
         if (pos.bottom) hl.style.bottom = parseInt(pos.bottom) + 40 + "px";
         else hl.style.top = parseInt(pos.top) + "px";
-        gridContainer.appendChild(hl);
+        _rearrangeOverlay.appendChild(hl);
       }
     } else {
       const aKey = `${pendingSwapTile.x},${pendingSwapTile.y}`;
@@ -55,19 +74,19 @@
     removeSwapHighlight();
     const btn = document.getElementById("tom-rearrange-btn");
     if (btn) btn.classList.toggle("active", isRearrangeMode);
-    const tileEls = document.querySelectorAll(".tile-overlay");
+
     if (isRearrangeMode) {
-      tileEls.forEach((el, i) => {
-        el.dataset.tomX = Math.floor(i / 9);
-        el.dataset.tomY = i % 9;
-        el.addEventListener("click", onTileRearrangeClick, true);
-        el.style.cursor = "crosshair";
-      });
+      const gridContainer = document.querySelector(".town-grid-content");
+      if (gridContainer) {
+        _rearrangeOverlay = document.createElement("div");
+        _rearrangeOverlay.style.cssText =
+          "position:absolute;top:0;left:0;width:100%;height:100%;" +
+          "cursor:crosshair;z-index:2147483647;";
+        _rearrangeOverlay.addEventListener("click", onGridRearrangeClick);
+        gridContainer.appendChild(_rearrangeOverlay);
+      }
     } else {
-      tileEls.forEach((el) => {
-        el.removeEventListener("click", onTileRearrangeClick, true);
-        el.style.cursor = "";
-      });
+      if (_rearrangeOverlay) { _rearrangeOverlay.remove(); _rearrangeOverlay = null; }
     }
   }
 

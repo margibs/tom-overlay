@@ -514,7 +514,7 @@ function injectStyles() {
       .tom-swap-highlight {
         position: absolute; width: 60px; height: 30px;
         border: 2px solid #fbbf24; border-radius: 4px;
-        pointer-events: none; z-index: 2147483645;
+        pointer-events: none;
         box-shadow: 0 0 8px rgba(251,191,36,0.6);
         transform: translateX(-50%);
       }
