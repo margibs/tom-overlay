@@ -15,7 +15,7 @@
 
     const response = await originalFetch.apply(this, [input, init]);
 
-    if (/\/my\/town\/\d+$/.test(url)) {
+    if (/\/my\/town\/\d+(?:\?|$)/.test(url)) {
       // Town data — handled by notifyListeners → onTownData
       response
         .clone()
@@ -60,7 +60,7 @@
     return originalOpen.call(this, method, url, ...rest);
   };
   XMLHttpRequest.prototype.send = function (...args) {
-    if (this._tomUrl && /\/my\/town\/\d+$/.test(this._tomUrl)) {
+    if (this._tomUrl && /\/my\/town\/\d+(?:\?|$)/.test(this._tomUrl)) {
       this.addEventListener("load", function () {
         try {
           const json = JSON.parse(this.responseText);
