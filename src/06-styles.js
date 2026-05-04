@@ -500,6 +500,38 @@ function injectStyles() {
         padding: 20px; font-size: 13px;
         font-family: 'Work Sans', system-ui, sans-serif;
       }
+
+      /* Rearrange mode */
+      .tom-rearrange-btn {
+        cursor: pointer; font-size: 9px; padding: 1px 5px;
+        border-radius: 3px; border: 1px solid rgba(251,191,36,0.4);
+        color: #fbbf24; background: rgba(251,191,36,0.08);
+        user-select: none; margin-right: 4px;
+      }
+      .tom-rearrange-btn.active {
+        background: rgba(251,191,36,0.25); border-color: #fbbf24; color: #fef08a;
+      }
+      .tom-swap-highlight {
+        position: absolute; width: 60px; height: 30px;
+        border: 2px solid #fbbf24; border-radius: 4px;
+        pointer-events: none; z-index: 2147483645;
+        box-shadow: 0 0 8px rgba(251,191,36,0.6);
+        transform: translateX(-50%);
+      }
+      .tom-swap-dot {
+        display: inline-block; width: 5px; height: 5px;
+        background: #fbbf24; border-radius: 50%;
+        margin-left: 2px; vertical-align: middle;
+      }
+      .tom-swap-row {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 2px 0; font-size: 10px; color: #fbbf24;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+      }
+      .tom-swap-remove {
+        cursor: pointer; color: #ef4444; font-size: 11px;
+        line-height: 1; padding: 0 3px;
+      }
     `;
   document.head.appendChild(style);
 }

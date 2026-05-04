@@ -1,3 +1,76 @@
+  // --- Building swap helpers ---
+  function applySwapsToBuildings(buildings) {
+    if (!Object.keys(buildingSwapMap).length) return buildings;
+    return buildings.map((b) => {
+      const swappedTo = buildingSwapMap[`${b.x},${b.y}`];
+      if (!swappedTo) return b;
+      const [nx, ny] = swappedTo.split(",").map(Number);
+      return Object.assign({}, b, { x: nx, y: ny });
+    });
+  }
+
+  function removeSwapHighlight() {
+    document.querySelectorAll(".tom-swap-highlight").forEach((el) => el.remove());
+  }
+
+  function onTileRearrangeClick(e) {
+    e.stopPropagation();
+    const x = parseInt(this.dataset.tomX);
+    const y = parseInt(this.dataset.tomY);
+    const key = `${x},${y}`;
+
+    if (!pendingSwapTile) {
+      pendingSwapTile = { x, y };
+      const tilePositions = getSharedTilePositions();
+      const pos = tilePositions[key];
+      const gridContainer = document.querySelector(".town-grid-content");
+      if (pos && gridContainer) {
+        removeSwapHighlight();
+        const hl = document.createElement("div");
+        hl.className = "tom-swap-highlight";
+        hl.style.left = parseInt(pos.left) + 60 + "px";
+        if (pos.bottom) hl.style.bottom = parseInt(pos.bottom) + 40 + "px";
+        else hl.style.top = parseInt(pos.top) + "px";
+        gridContainer.appendChild(hl);
+      }
+    } else {
+      const aKey = `${pendingSwapTile.x},${pendingSwapTile.y}`;
+      if (aKey !== key) {
+        if (buildingSwapMap[aKey]) delete buildingSwapMap[buildingSwapMap[aKey]];
+        if (buildingSwapMap[key]) delete buildingSwapMap[buildingSwapMap[key]];
+        buildingSwapMap[aKey] = key;
+        buildingSwapMap[key] = aKey;
+        saveSwapMap();
+      }
+      pendingSwapTile = null;
+      removeSwapHighlight();
+      lastBadgeKey = "";
+      renderAll();
+    }
+  }
+
+  function toggleRearrangeMode() {
+    isRearrangeMode = !isRearrangeMode;
+    pendingSwapTile = null;
+    removeSwapHighlight();
+    const btn = document.getElementById("tom-rearrange-btn");
+    if (btn) btn.classList.toggle("active", isRearrangeMode);
+    const tileEls = document.querySelectorAll(".tile-overlay");
+    if (isRearrangeMode) {
+      tileEls.forEach((el, i) => {
+        el.dataset.tomX = Math.floor(i / 9);
+        el.dataset.tomY = i % 9;
+        el.addEventListener("click", onTileRearrangeClick, true);
+        el.style.cursor = "crosshair";
+      });
+    } else {
+      tileEls.forEach((el) => {
+        el.removeEventListener("click", onTileRearrangeClick, true);
+        el.style.cursor = "";
+      });
+    }
+  }
+
   // --- Grid Badges ---
   let badgeRetries = 0;
   let lastBadgeKey = "";
@@ -32,9 +105,9 @@
 
     const tilePositions = getSharedTilePositions();
 
-    // Build lookups
+    // Build lookups using swapped positions
     const workerLookup = {};
-    for (const b of parsed.assignedBuildings) {
+    for (const b of applySwapsToBuildings(parsed.assignedBuildings)) {
       workerLookup[`${b.x},${b.y}`] = {
         assignees: b.assignees,
         category: b.category,
@@ -68,7 +141,8 @@
         .map((t) => String(t.callbackArgs.buildingId)),
     );
 
-    for (const tile of parsed.allBuildings) {
+    const displayBuildings = applySwapsToBuildings(parsed.allBuildings);
+    for (const tile of displayBuildings) {
       if (timerBuildingIds.has(String(tile.id))) continue;
 
       const pos = tilePositions[`${tile.x},${tile.y}`];
@@ -127,6 +201,12 @@
       txt.style.padding = "1px 4px";
       txt.textContent = displayText;
       if (displayText) label.appendChild(txt);
+
+      if (buildingSwapMap[`${tile.x},${tile.y}`]) {
+        const dot = document.createElement("span");
+        dot.className = "tom-swap-dot";
+        label.appendChild(dot);
+      }
 
       // Train label for training/archery buildings
       if (troopInfo && troopInfo.trainable !== null) {
