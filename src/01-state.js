@@ -27,6 +27,7 @@
 
   // --- Shared tile position builder ---
   let _sharedTilePositions = {};
+  let _originalTilePositions = null; // set once on first capture; never overwritten
   function rebuildTilePositions() {
     const tileEls = document.querySelectorAll(".tile-overlay");
     if (tileEls.length === 0) return;
@@ -40,8 +41,12 @@
         bottom: el.style.bottom,
       };
     });
+    if (!_originalTilePositions) {
+      _originalTilePositions = Object.assign({}, _sharedTilePositions);
+    }
   }
   function getSharedTilePositions() { return _sharedTilePositions; }
+  function getOriginalTilePositions() { return _originalTilePositions; }
 
   // --- Worker color helper ---
   function getWorkerColor(ratio, isFull, craftIdle, assignees) {

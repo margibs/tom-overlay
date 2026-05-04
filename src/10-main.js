@@ -26,6 +26,7 @@ function rebuildDerived() {
 function renderAll() {
   if (!lastParsed) return;
   rebuildTilePositions();
+  applyDOMSwaps(); // swap game tile elements + rebuilds tile positions
   renderPanel(lastParsed);
   lastBadgeKey = ""; // force badge rebuild on data change
   lastTimerBadgeKey = ""; // force timer badge rebuild on data change
@@ -63,6 +64,7 @@ domReady(() => {
     // Rebuild shared tile positions if needed
     if (Object.keys(getSharedTilePositions()).length === 0) {
       rebuildTilePositions();
+      applyDOMSwaps();
     }
 
     checkExpiredTimers();

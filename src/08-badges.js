@@ -1,12 +1,42 @@
-  // --- Building swap helpers ---
-  function applySwapsToBuildings(buildings) {
-    if (!Object.keys(buildingSwapMap).length) return buildings;
-    return buildings.map((b) => {
-      const swappedTo = buildingSwapMap[`${b.x},${b.y}`];
-      if (!swappedTo) return b;
-      const [nx, ny] = swappedTo.split(",").map(Number);
-      return Object.assign({}, b, { x: nx, y: ny });
+  // --- DOM swap: physically move game tile elements to swap building visuals ---
+  function applyDOMSwaps() {
+    const origPos = getOriginalTilePositions();
+    if (!origPos) return;
+    const tileEls = document.querySelectorAll(".tile-overlay");
+    if (!tileEls.length) return;
+
+    // Reset ALL tile overlays to original game positions
+    tileEls.forEach((el, i) => {
+      const orig = origPos[`${Math.floor(i / 9)},${i % 9}`];
+      if (!orig) return;
+      el.style.left = orig.left;
+      el.style.top = orig.top;
+      el.style.bottom = orig.bottom;
     });
+
+    // Apply current swaps
+    const done = new Set();
+    for (const [aKey, bKey] of Object.entries(buildingSwapMap)) {
+      const pairKey = aKey < bKey ? aKey + "~" + bKey : bKey + "~" + aKey;
+      if (done.has(pairKey)) continue;
+      done.add(pairKey);
+      const [ax, ay] = aKey.split(",").map(Number);
+      const [bx, by] = bKey.split(",").map(Number);
+      const elA = tileEls[ax * 9 + ay];
+      const elB = tileEls[bx * 9 + by];
+      const origA = origPos[aKey];
+      const origB = origPos[bKey];
+      if (!elA || !elB || !origA || !origB) continue;
+      elA.style.left = origB.left;
+      elA.style.top = origB.top;
+      elA.style.bottom = origB.bottom;
+      elB.style.left = origA.left;
+      elB.style.top = origA.top;
+      elB.style.bottom = origA.bottom;
+    }
+
+    // Rebuild so _sharedTilePositions reflects the new visual positions
+    rebuildTilePositions();
   }
 
   let _rearrangeOverlay = null;
@@ -124,9 +154,9 @@
 
     const tilePositions = getSharedTilePositions();
 
-    // Build lookups using swapped positions
+    // Build lookups (tile positions already reflect swaps after applyDOMSwaps)
     const workerLookup = {};
-    for (const b of applySwapsToBuildings(parsed.assignedBuildings)) {
+    for (const b of parsed.assignedBuildings) {
       workerLookup[`${b.x},${b.y}`] = {
         assignees: b.assignees,
         category: b.category,
@@ -160,8 +190,7 @@
         .map((t) => String(t.callbackArgs.buildingId)),
     );
 
-    const displayBuildings = applySwapsToBuildings(parsed.allBuildings);
-    for (const tile of displayBuildings) {
+    for (const tile of parsed.allBuildings) {
       if (timerBuildingIds.has(String(tile.id))) continue;
 
       const pos = tilePositions[`${tile.x},${tile.y}`];
