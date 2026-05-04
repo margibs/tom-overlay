@@ -1,125 +1,3 @@
-  // --- DOM swap: physically move game tile elements to swap building visuals ---
-  function applyDOMSwaps() {
-    const origPos = getOriginalTilePositions();
-    if (!origPos) return;
-    const tileEls = document.querySelectorAll(".tile-overlay");
-    if (!tileEls.length) return;
-
-    // Reset ALL tile overlays to original game positions
-    tileEls.forEach((el, i) => {
-      const orig = origPos[`${Math.floor(i / 9)},${i % 9}`];
-      if (!orig) return;
-      el.style.left = orig.left;
-      el.style.top = orig.top;
-      el.style.bottom = orig.bottom;
-    });
-
-    // Apply current swaps
-    const done = new Set();
-    for (const [aKey, bKey] of Object.entries(buildingSwapMap)) {
-      const pairKey = aKey < bKey ? aKey + "~" + bKey : bKey + "~" + aKey;
-      if (done.has(pairKey)) continue;
-      done.add(pairKey);
-      const [ax, ay] = aKey.split(",").map(Number);
-      const [bx, by] = bKey.split(",").map(Number);
-      const elA = tileEls[ax * 9 + ay];
-      const elB = tileEls[bx * 9 + by];
-      const origA = origPos[aKey];
-      const origB = origPos[bKey];
-      if (!elA || !elB || !origA || !origB) continue;
-      elA.style.left = origB.left;
-      elA.style.top = origB.top;
-      elA.style.bottom = origB.bottom;
-      elB.style.left = origA.left;
-      elB.style.top = origA.top;
-      elB.style.bottom = origA.bottom;
-    }
-
-    // Rebuild so _sharedTilePositions reflects the new visual positions
-    rebuildTilePositions();
-  }
-
-  let _rearrangeOverlay = null;
-
-  function removeSwapHighlight() {
-    document.querySelectorAll(".tom-swap-highlight").forEach((el) => el.remove());
-  }
-
-  function nearestTileKey(clickX, clickY, containerH) {
-    const tilePositions = getSharedTilePositions();
-    let bestKey = null;
-    let bestDist = Infinity;
-    for (const [key, pos] of Object.entries(tilePositions)) {
-      const tx = parseInt(pos.left);
-      const ty = pos.bottom
-        ? containerH - parseInt(pos.bottom) - 15
-        : parseInt(pos.top) + 15;
-      const d = (clickX - tx) ** 2 + (clickY - ty) ** 2;
-      if (d < bestDist) { bestDist = d; bestKey = key; }
-    }
-    return bestKey;
-  }
-
-  function onGridRearrangeClick(e) {
-    const rect = _rearrangeOverlay.getBoundingClientRect();
-    const clickX = e.clientX - rect.left;
-    const clickY = e.clientY - rect.top;
-    const containerH = _rearrangeOverlay.offsetHeight;
-    const bestKey = nearestTileKey(clickX, clickY, containerH);
-    if (!bestKey) return;
-    const [x, y] = bestKey.split(",").map(Number);
-    const key = bestKey;
-
-    if (!pendingSwapTile) {
-      pendingSwapTile = { x, y };
-      removeSwapHighlight();
-      const pos = getSharedTilePositions()[key];
-      if (pos) {
-        const hl = document.createElement("div");
-        hl.className = "tom-swap-highlight";
-        hl.style.left = parseInt(pos.left) + 60 + "px";
-        if (pos.bottom) hl.style.bottom = parseInt(pos.bottom) + 40 + "px";
-        else hl.style.top = parseInt(pos.top) + "px";
-        _rearrangeOverlay.appendChild(hl);
-      }
-    } else {
-      const aKey = `${pendingSwapTile.x},${pendingSwapTile.y}`;
-      if (aKey !== key) {
-        if (buildingSwapMap[aKey]) delete buildingSwapMap[buildingSwapMap[aKey]];
-        if (buildingSwapMap[key]) delete buildingSwapMap[buildingSwapMap[key]];
-        buildingSwapMap[aKey] = key;
-        buildingSwapMap[key] = aKey;
-        saveSwapMap();
-      }
-      pendingSwapTile = null;
-      removeSwapHighlight();
-      lastBadgeKey = "";
-      renderAll();
-    }
-  }
-
-  function toggleRearrangeMode() {
-    isRearrangeMode = !isRearrangeMode;
-    pendingSwapTile = null;
-    removeSwapHighlight();
-    const btn = document.getElementById("tom-rearrange-btn");
-    if (btn) btn.classList.toggle("active", isRearrangeMode);
-
-    if (isRearrangeMode) {
-      const gridContainer = document.querySelector(".town-grid-content");
-      if (gridContainer) {
-        _rearrangeOverlay = document.createElement("div");
-        _rearrangeOverlay.style.cssText =
-          "position:absolute;top:0;left:0;width:100%;height:100%;" +
-          "cursor:crosshair;z-index:2147483647;";
-        _rearrangeOverlay.addEventListener("click", onGridRearrangeClick);
-        gridContainer.appendChild(_rearrangeOverlay);
-      }
-    } else {
-      if (_rearrangeOverlay) { _rearrangeOverlay.remove(); _rearrangeOverlay = null; }
-    }
-  }
-
   // --- Grid Badges ---
   let badgeRetries = 0;
   let lastBadgeKey = "";
@@ -154,7 +32,6 @@
 
     const tilePositions = getSharedTilePositions();
 
-    // Build lookups (tile positions already reflect swaps after applyDOMSwaps)
     const workerLookup = {};
     for (const b of parsed.assignedBuildings) {
       workerLookup[`${b.x},${b.y}`] = {
@@ -249,12 +126,6 @@
       txt.style.padding = "1px 4px";
       txt.textContent = displayText;
       if (displayText) label.appendChild(txt);
-
-      if (buildingSwapMap[`${tile.x},${tile.y}`]) {
-        const dot = document.createElement("span");
-        dot.className = "tom-swap-dot";
-        label.appendChild(dot);
-      }
 
       // Train label for training/archery buildings
       if (troopInfo && troopInfo.trainable !== null) {

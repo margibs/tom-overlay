@@ -19,7 +19,6 @@
             <span class="tom-tab" data-tab="trade">Trade</span>
             <span class="tom-tab" data-tab="market">Market</span>
           </div>
-          <span class="tom-rearrange-btn" id="tom-rearrange-btn">&#x21C4; Rearrange</span>
           <span class="tom-version">v${VERSION}</span>
           <span class="tom-toggle" id="tom-toggle">&blacktriangledown;</span>
         </div>
@@ -57,27 +56,6 @@
             .getElementById("tom-tab-" + tab.dataset.tab)
             .classList.add("active");
         });
-      });
-
-      document.getElementById("tom-rearrange-btn").addEventListener("click", toggleRearrangeMode);
-
-      // Swap remove / reset all delegation on overview tab
-      document.getElementById("tom-tab-overview").addEventListener("click", (e) => {
-        if (e.target.id === "tom-swap-reset-all") {
-          clearAllSwaps();
-          lastBadgeKey = "";
-          renderAll();
-        }
-        const removeBtn = e.target.closest(".tom-swap-remove");
-        if (removeBtn) {
-          const k = removeBtn.dataset.swapKey;
-          const v = buildingSwapMap[k];
-          delete buildingSwapMap[k];
-          if (v) delete buildingSwapMap[v];
-          saveSwapMap();
-          lastBadgeKey = "";
-          renderAll();
-        }
       });
 
       // Active crafting queue collapse toggle (event delegation)
@@ -469,21 +447,6 @@
           <span class="tom-row-label"><span class="tom-row-cat tom-cat-${b.category}"></span>${b.label}<span class="tom-row-coord">(${b.x},${b.y})</span></span>
           <span class="tom-row-value">${b.builders} builders</span>
         </div>`;
-      }
-      html += `</div>`;
-    }
-
-    // Rearranged lots section
-    const swapKeys = Object.keys(buildingSwapMap).filter((k) => {
-      const v = buildingSwapMap[k];
-      return v && k < v;
-    });
-    if (swapKeys.length) {
-      html += `<div class="tom-section">`;
-      html += `<div class="tom-section-title">Rearranged Lots <span id="tom-swap-reset-all" style="cursor:pointer;color:#ef4444;font-size:9px;float:right;padding:1px 4px;">Reset All</span></div>`;
-      for (const k of swapKeys) {
-        const v = buildingSwapMap[k];
-        html += `<div class="tom-swap-row"><span>(${k}) &#x21C4; (${v})</span><span class="tom-swap-remove" data-swap-key="${k}">&#x2715;</span></div>`;
       }
       html += `</div>`;
     }

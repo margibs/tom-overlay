@@ -5,19 +5,6 @@
   let tickInterval = 300; // seconds; updated dynamically from last_food_production_time
   let buildingQueueMax = null; // detected from failed PATCH response
   let lastMarketTrades = null; // { items: [...], meta: {...} } from /buildings/:id/trades
-
-  // --- Building swap map (visual planning, localStorage-persisted) ---
-  let buildingSwapMap = JSON.parse(localStorage.getItem("tom-building-swaps") || "{}");
-  let isRearrangeMode = false;
-  let pendingSwapTile = null; // {x, y} of first selected tile
-
-  function saveSwapMap() {
-    localStorage.setItem("tom-building-swaps", JSON.stringify(buildingSwapMap));
-  }
-  function clearAllSwaps() {
-    buildingSwapMap = {};
-    saveSwapMap();
-  }
   const listeners = [];
 
   // --- Tick counter for per-tick caching ---
@@ -27,7 +14,6 @@
 
   // --- Shared tile position builder ---
   let _sharedTilePositions = {};
-  let _originalTilePositions = null; // set once on first capture; never overwritten
   function rebuildTilePositions() {
     const tileEls = document.querySelectorAll(".tile-overlay");
     if (tileEls.length === 0) return;
@@ -41,12 +27,8 @@
         bottom: el.style.bottom,
       };
     });
-    if (!_originalTilePositions) {
-      _originalTilePositions = Object.assign({}, _sharedTilePositions);
-    }
   }
   function getSharedTilePositions() { return _sharedTilePositions; }
-  function getOriginalTilePositions() { return _originalTilePositions; }
 
   // --- Worker color helper ---
   function getWorkerColor(ratio, isFull, craftIdle, assignees) {
