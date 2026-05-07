@@ -18,6 +18,7 @@
             <span class="tom-tab" data-tab="crafting">Crafting</span>
             <span class="tom-tab" data-tab="trade">Trade</span>
             <span class="tom-tab" data-tab="market">Market</span>
+            <span class="tom-tab" data-tab="offers">Offers <span id="tom-offers-count" class="tom-offers-count">0</span></span>
           </div>
           <span class="tom-version">v${VERSION}</span>
           <span class="tom-toggle" id="tom-toggle">&blacktriangledown;</span>
@@ -27,6 +28,7 @@
           <div id="tom-tab-crafting" class="tom-tab-content"></div>
           <div id="tom-tab-trade" class="tom-tab-content"></div>
           <div id="tom-tab-market" class="tom-tab-content"></div>
+          <div id="tom-tab-offers" class="tom-tab-content"></div>
         </div>
       `;
       document.body.appendChild(panel);
@@ -597,6 +599,67 @@
     applySearch(prevSearch);
     searchEl.addEventListener("input", (e) => applySearch(e.target.value));
     renderMarketTab();
+    renderOffersTab();
+  }
+
+  function renderOffersTab() {
+    const el = document.getElementById("tom-tab-offers");
+    const countEl = document.getElementById("tom-offers-count");
+    if (countEl) countEl.textContent = chatOffers.length;
+    if (!el) return;
+
+    if (chatOffers.length === 0) {
+      el.innerHTML = `<div class="tom-section"><div class="tom-market-empty">Waiting for chat market offers… (polled every ~5s)</div></div>`;
+      return;
+    }
+
+    const fmtSlug = (slug) =>
+      slug.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+    const fmtTs = (ts) => {
+      const d = new Date(ts * 1000);
+      const hh = String(d.getHours()).padStart(2, "0");
+      const mm = String(d.getMinutes()).padStart(2, "0");
+      return `${hh}:${mm}`;
+    };
+
+    let html = `<div class="tom-section">`;
+    html += `<div class="tom-section-title">Chat Market Offers <span style="color:#555;font-weight:400;font-size:10px">${chatOffers.length} captured</span></div>`;
+
+    for (const o of chatOffers) {
+      const getVal = calcValue(o.offerSlug, o.offerQty);
+      const giveVal = calcValue(o.takerSlug, o.takerQty);
+      const ratio =
+        getVal && giveVal && giveVal.wm > 0 ? getVal.wm / giveVal.wm : null;
+
+      let badgeClass, badgeText;
+      if (ratio === null) {
+        badgeClass = "tom-market-badge-unknown";
+        badgeText = "?";
+      } else if (ratio >= 1.1) {
+        badgeClass = "tom-market-badge-good";
+        badgeText = ratio.toFixed(2) + "x";
+      } else if (ratio >= 0.9) {
+        badgeClass = "tom-market-badge-good";
+        badgeText = ratio.toFixed(2) + "x";
+      } else if (ratio >= 0.8) {
+        badgeClass = "tom-market-badge-fair";
+        badgeText = (1 / ratio).toFixed(2) + "x";
+      } else {
+        badgeClass = "tom-market-badge-bad";
+        badgeText = (1 / ratio).toFixed(2) + "x";
+      }
+
+      html += `<div class="tom-market-row">
+        <span class="tom-market-badge ${badgeClass}">${badgeText}</span>
+        <div class="tom-market-sides">
+          <div class="tom-offer-meta"><span class="tom-offer-user">${o.username}</span> <span class="tom-offer-time">${fmtTs(o.timestamp)}</span></div>
+          <div><span class="tom-trade-side tom-trade-get">GET</span> <span class="tom-market-item">${o.offerQty.toLocaleString()} ${fmtSlug(o.offerSlug)}</span></div>
+          <div><span class="tom-trade-side tom-trade-give">GIVE</span> <span class="tom-market-item">${o.takerQty.toLocaleString()} ${fmtSlug(o.takerSlug)}</span></div>
+        </div>
+      </div>`;
+    }
+    html += `</div>`;
+    el.innerHTML = html;
   }
 
   function renderMarketTab() {

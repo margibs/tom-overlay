@@ -35,6 +35,16 @@
         .catch((e) => console.warn("[TOM]", e));
     }
 
+    if (/\/api\/updates(?:\?|$)/.test(url)) {
+      response
+        .clone()
+        .json()
+        .then((json) => {
+          if (ingestChatOffers(json)) renderOffersTab();
+        })
+        .catch(() => {});
+    }
+
     if (/\/buildings\/\d+\/trades/.test(url)) {
       response
         .clone()
@@ -131,6 +141,16 @@
             }
           }
         } catch (e) { console.warn("[TOM]", e); }
+      });
+    } else if (
+      this._tomUrl &&
+      /\/api\/updates(?:\?|$)/.test(this._tomUrl)
+    ) {
+      this.addEventListener("load", function () {
+        try {
+          const json = JSON.parse(this.responseText);
+          if (ingestChatOffers(json)) renderOffersTab();
+        } catch (e) { /* ignore */ }
       });
     } else if (
       this._tomUrl &&

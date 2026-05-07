@@ -400,6 +400,21 @@ function injectStyles() {
       .tom-aq-label { color: #ccc; flex: 1; margin-right: 8px; }
       .tom-aq-time { color: #fbbf24; font-weight: 700; font-variant-numeric: tabular-nums; }
       .tom-market-empty { color: #555; font-size: 11px; padding: 8px 0; }
+      .tom-offers-count {
+        display: inline-block;
+        margin-left: 4px;
+        background: rgba(251,191,36,0.2);
+        color: #fbbf24;
+        font-size: 9px;
+        font-weight: 700;
+        padding: 1px 5px;
+        border-radius: 8px;
+        min-width: 14px;
+        text-align: center;
+      }
+      .tom-offer-meta { font-size: 10px; color: #888; margin-bottom: 2px; }
+      .tom-offer-user { color: #e9c176; font-weight: 700; }
+      .tom-offer-time { color: #555; margin-left: 4px; }
       .tom-market-row {
         display: flex;
         align-items: center;
