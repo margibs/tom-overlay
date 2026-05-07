@@ -1,10 +1,10 @@
   // Hides "Nag-aalok ako ng ... sa Market!" messages from in-game chat.
   // React owns these nodes — use display:none via class, never remove.
-  // Toggleable via localStorage key tom-hide-chat-offers (default: enabled).
+  // Toggleable via localStorage key tom-hide-chat-offers. Opt-in (default off).
 
   const CHAT_HIDE_KEY = "tom-hide-chat-offers";
   function isChatHideEnabled() {
-    return localStorage.getItem(CHAT_HIDE_KEY) !== "0";
+    return localStorage.getItem(CHAT_HIDE_KEY) === "1";
   }
   function setChatHideEnabled(on) {
     localStorage.setItem(CHAT_HIDE_KEY, on ? "1" : "0");
