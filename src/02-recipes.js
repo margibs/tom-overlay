@@ -70,7 +70,7 @@ const CRAFT_RECIPES = [
   {
     name: "Coconut Charcoal",
     slug: "coconut_charcoal",
-    yield: 1,
+    yield: 5,
     time: 40,
     ingredients: [{ slug: "wood", qty: 50 }],
   },
