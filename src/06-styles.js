@@ -415,6 +415,11 @@ function injectStyles() {
       .tom-offer-meta { font-size: 10px; color: #888; margin-bottom: 2px; }
       .tom-offer-user { color: #e9c176; font-weight: 700; }
       .tom-offer-time { color: #555; margin-left: 4px; }
+      .tom-hidden-offer { display: none !important; }
+      .tom-offers-toolbar { display: flex; align-items: center; gap: 8px; padding: 4px 0 6px; font-size: 11px; color: #aaa; }
+      .tom-offers-toggle { cursor: pointer; user-select: none; }
+      .tom-offers-toggle input { vertical-align: middle; margin-right: 4px; }
+      .tom-offers-clear { margin-left: auto; cursor: pointer; color: #ef4444; font-size: 10px; }
       .tom-market-row {
         display: flex;
         align-items: center;

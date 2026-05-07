@@ -35,6 +35,7 @@ function renderAll() {
 
 domReady(() => {
   injectStyles();
+  initChatFilter();
   initInventorySort();
   initBuildingSort();
   initCrafterSort();

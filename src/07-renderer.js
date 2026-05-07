@@ -608,8 +608,15 @@
     if (countEl) countEl.textContent = chatOffers.length;
     if (!el) return;
 
+    const hideOn = isChatHideEnabled();
+    const toolbar = `<div class="tom-offers-toolbar">
+      <label class="tom-offers-toggle"><input type="checkbox" id="tom-offers-hide" ${hideOn ? "checked" : ""}> Hide offers from game chat</label>
+      <span class="tom-offers-clear" id="tom-offers-clear">Clear</span>
+    </div>`;
+
     if (chatOffers.length === 0) {
-      el.innerHTML = `<div class="tom-section"><div class="tom-market-empty">Waiting for chat market offers… (polled every ~5s)</div></div>`;
+      el.innerHTML = toolbar + `<div class="tom-section"><div class="tom-market-empty">Waiting for chat market offers… (polled every ~5s)</div></div>`;
+      bindOffersToolbar();
       return;
     }
 
@@ -622,7 +629,7 @@
       return `${hh}:${mm}`;
     };
 
-    let html = `<div class="tom-section">`;
+    let html = toolbar + `<div class="tom-section">`;
     html += `<div class="tom-section-title">Chat Market Offers <span style="color:#555;font-weight:400;font-size:10px">${chatOffers.length} captured</span></div>`;
 
     for (const o of chatOffers) {
@@ -660,6 +667,22 @@
     }
     html += `</div>`;
     el.innerHTML = html;
+    bindOffersToolbar();
+  }
+
+  function bindOffersToolbar() {
+    const cb = document.getElementById("tom-offers-hide");
+    if (cb) {
+      cb.addEventListener("change", (e) => setChatHideEnabled(e.target.checked));
+    }
+    const clr = document.getElementById("tom-offers-clear");
+    if (clr) {
+      clr.addEventListener("click", () => {
+        chatOffers.length = 0;
+        chatOfferIds.clear();
+        renderOffersTab();
+      });
+    }
   }
 
   function renderMarketTab() {
