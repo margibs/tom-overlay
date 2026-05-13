@@ -16,17 +16,17 @@
       return { wm: qty * WM_RATES[slug], base: { [slug]: qty }, craftSecs: 0 };
     const recipe = recipeBySlug[slug];
     if (!recipe) return null;
-    const craftsNeeded = Math.ceil(qty / recipe.yield);
+    const scale = qty / recipe.yield;
     const baseCostPerCraft = resolveBaseCost(recipe);
     const totalBase = {};
     for (const [mat, amt] of Object.entries(baseCostPerCraft)) {
-      totalBase[mat] = amt * craftsNeeded;
+      totalBase[mat] = amt * scale;
     }
     const matWm = Object.entries(totalBase).reduce(
       (sum, [mat, amt]) => sum + (WM_RATES[mat] || 0) * amt,
       0,
     );
-    const craftSecs = totalCraftTime(recipe, craftsNeeded);
+    const craftSecs = totalCraftTime(recipe) * scale;
     const craftWm = craftSecs / 60; // 1 wm/min per worker, assume 1 worker
     return { wm: matWm + craftWm, matWm, craftWm, craftSecs, base: totalBase };
   }
@@ -35,7 +35,8 @@
     return (
       Object.entries(base)
         .map(
-          ([mat, amt]) => `${amt.toLocaleString()} ${mat.replace(/_/g, " ")}`,
+          ([mat, amt]) =>
+            `${Math.round(amt).toLocaleString()} ${mat.replace(/_/g, " ")}`,
         )
         .join(" + ") || "—"
     );
