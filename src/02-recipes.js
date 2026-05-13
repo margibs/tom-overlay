@@ -148,8 +148,8 @@ const CRAFT_RECIPES = [
   {
     name: "Gold Coin",
     slug: "gold_coin",
-    yield: 1,
-    time: 40,
+    yield: 5,
+    time: 46,
     ingredients: [{ slug: "gold_dust", qty: 25 }],
   },
   {
