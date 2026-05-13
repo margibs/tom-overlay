@@ -253,7 +253,7 @@ function resolveBaseCost(recipe) {
     if (BASE_MATERIALS.has(ing.slug) || !sub) {
       base[ing.slug] = (base[ing.slug] || 0) + ing.qty;
     } else {
-      const craftsNeeded = Math.ceil(ing.qty / sub.yield);
+      const craftsNeeded = ing.qty / sub.yield;
       const subBase = resolveBaseCost(sub);
       for (const [mat, amt] of Object.entries(subBase)) {
         base[mat] = (base[mat] || 0) + amt * craftsNeeded;
@@ -319,7 +319,7 @@ function totalCraftTime(recipe, craftsNeeded = 1) {
     if (BASE_MATERIALS.has(ing.slug) || !canCraftRecipe(ing.slug)) continue;
     const sub = recipeBySlug[ing.slug];
     if (!sub) continue;
-    const subCrafts = Math.ceil((ing.qty * craftsNeeded) / sub.yield);
+    const subCrafts = (ing.qty * craftsNeeded) / sub.yield;
     seconds += totalCraftTime(sub, subCrafts);
   }
   return seconds;
