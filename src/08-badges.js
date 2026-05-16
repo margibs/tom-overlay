@@ -2,6 +2,29 @@
   let badgeRetries = 0;
   let lastBadgeKey = "";
 
+  // Read building IDs with active crafting from game's persist:timer store
+  function getCraftingBuildingIds() {
+    try {
+      const raw = localStorage.getItem("persist:timer");
+      if (!raw) return new Set();
+      const parsed = JSON.parse(raw);
+      const timers = JSON.parse(parsed.timers || "{}");
+      const ids = new Set();
+      for (const userId in timers) {
+        const list = timers[userId];
+        if (!Array.isArray(list)) continue;
+        for (const t of list) {
+          if (t?.callbackArgs?.recipeName && t.callbackArgs.buildingId) {
+            ids.add(String(t.callbackArgs.buildingId));
+          }
+        }
+      }
+      return ids;
+    } catch (e) {
+      return new Set();
+    }
+  }
+
   function renderBadges(parsed) {
     // Fingerprint: assigned buildings + populations for change detection
     const badgeKey = parsed.assignedBuildings
@@ -40,6 +63,8 @@
       };
     }
 
+    const craftingBuildingIds = getCraftingBuildingIds();
+
     for (const tile of parsed.allBuildings) {
       const pos = tilePositions[`${tile.x},${tile.y}`];
       if (!pos) continue;
@@ -53,6 +78,10 @@
       const wk = workerLookup[key];
 
       if (!wk || wk.assignees <= 0) continue;
+
+      // Hide assignee/Full label on crafters while they are actively crafting
+      const isCrafter = /^crafter/.test(tile.slug || "");
+      if (isCrafter && craftingBuildingIds.has(String(tile.id))) continue;
 
       const label = document.createElement("div");
       label.className = "tom-worker-label";
