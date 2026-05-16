@@ -40,15 +40,6 @@
       };
     }
 
-    // Per-building trainable: training_grounds → melee troops, archery_grounds → ranged troops
-    const troopByBuilding = {};
-    for (const p of parsed.allPopulations) {
-      if (p.type.includes("warrior") || p.type.includes("spearman"))
-        troopByBuilding["training_grounds"] = p;
-      if (p.type.includes("musketeer") || p.type.includes("archer"))
-        troopByBuilding["archery_grounds"] = p;
-    }
-
     for (const tile of parsed.allBuildings) {
       const pos = tilePositions[`${tile.x},${tile.y}`];
       if (!pos) continue;
@@ -61,11 +52,7 @@
       const key = `${tile.x},${tile.y}`;
       const wk = workerLookup[key];
 
-      const baseSlug = tile.slug.replace(/\d+$/, "");
-      const troopInfo = troopByBuilding[baseSlug] || null;
-
-      // Show if building has workers or has training info
-      if ((!wk || wk.assignees <= 0) && !troopInfo) continue;
+      if (!wk || wk.assignees <= 0) continue;
 
       const label = document.createElement("div");
       label.className = "tom-worker-label";
@@ -100,22 +87,6 @@
       txt.style.padding = "1px 4px";
       txt.textContent = displayText;
       if (displayText) label.appendChild(txt);
-
-      // Train label for training/archery buildings
-      if (troopInfo && troopInfo.trainable !== null) {
-        const trainEl = document.createElement("span");
-        trainEl.style.fontFamily = "'Work Sans', system-ui, sans-serif";
-        trainEl.style.fontSize = "7px";
-        trainEl.style.fontWeight = "700";
-        trainEl.style.color = troopInfo.trainable > 0 ? "#4ade80" : "#ef4444";
-        trainEl.style.textShadow =
-          "0 1px 2px rgba(0,0,0,0.8), 0 0 4px rgba(0,0,0,0.5)";
-        trainEl.style.background = "rgba(255,255,255,0.12)";
-        trainEl.style.borderRadius = "2px";
-        trainEl.style.padding = "1px 4px";
-        trainEl.textContent = troopInfo.label + ": " + troopInfo.trainable;
-        label.appendChild(trainEl);
-      }
 
       label.style.left = left + 60 + "px";
       if (!Number.isNaN(bottomRaw)) {
