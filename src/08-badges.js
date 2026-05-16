@@ -40,17 +40,6 @@
       };
     }
 
-    // Skip buildings with active timers (shown by renderTimerBadges)
-    const timerBuildingIds = new Set(
-      getActiveTimers()
-        .filter(
-          (t) =>
-            t.callbackType !== "addResearchedTech" &&
-            t.callbackArgs?.buildingId,
-        )
-        .map((t) => String(t.callbackArgs.buildingId)),
-    );
-
     // Per-building trainable: training_grounds → melee troops, archery_grounds → ranged troops
     const troopByBuilding = {};
     for (const p of parsed.allPopulations) {
@@ -60,16 +49,7 @@
         troopByBuilding["archery_grounds"] = p;
     }
 
-    // Build set of building IDs with active crafting timers
-    const craftingBuildingIds = new Set(
-      getActiveTimers()
-        .filter((t) => t.callbackArgs?.recipeName && t.callbackArgs?.buildingId)
-        .map((t) => String(t.callbackArgs.buildingId)),
-    );
-
     for (const tile of parsed.allBuildings) {
-      if (timerBuildingIds.has(String(tile.id))) continue;
-
       const pos = tilePositions[`${tile.x},${tile.y}`];
       if (!pos) continue;
 
@@ -80,13 +60,12 @@
       const maxWorkers = lvl;
       const key = `${tile.x},${tile.y}`;
       const wk = workerLookup[key];
-      const isCrafting = craftingBuildingIds.has(String(tile.id));
 
       const baseSlug = tile.slug.replace(/\d+$/, "");
       const troopInfo = troopByBuilding[baseSlug] || null;
 
-      // Show if building has workers, is crafting, or has training info
-      if ((!wk || wk.assignees <= 0) && !isCrafting && !troopInfo) continue;
+      // Show if building has workers or has training info
+      if ((!wk || wk.assignees <= 0) && !troopInfo) continue;
 
       const label = document.createElement("div");
       label.className = "tom-worker-label";
@@ -101,18 +80,13 @@
       const assignees = wk?.assignees || 0;
       const ratio = maxWorkers > 0 ? assignees / maxWorkers : 0;
       const isFull = ratio >= 1;
-      const isCraftBuilding = tile.category === "crafting";
-      const craftIdle = isCraftBuilding && !isCrafting;
 
       let displayText = "";
       if (assignees > 0) {
         displayText = isFull ? "Full!" : assignees + "/" + maxWorkers;
-        if (craftIdle) displayText += " | No Craft";
-      } else if (craftIdle) {
-        displayText = "No Craft";
       }
 
-      const txtColor = getWorkerColor(ratio, isFull, craftIdle, assignees);
+      const txtColor = getWorkerColor(ratio, isFull, false, assignees);
 
       const txt = document.createElement("span");
       txt.style.fontFamily = "'Work Sans', system-ui, sans-serif";

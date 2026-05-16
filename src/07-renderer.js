@@ -60,22 +60,6 @@
         });
       });
 
-      // Active crafting queue collapse toggle (event delegation)
-      document
-        .getElementById("tom-tab-crafting")
-        .addEventListener("click", (e) => {
-          if (e.target.closest("#tom-aq-header")) {
-            const collapsed =
-              localStorage.getItem("tom-craft-queue-collapsed") === "1";
-            localStorage.setItem(
-              "tom-craft-queue-collapsed",
-              collapsed ? "0" : "1",
-            );
-            lastCraftTimerKey = ""; // force full rebuild on next tick
-            renderActiveCraftingQueue();
-          }
-        });
-
       // Render Trade tab static UI (options built from TRADE_ITEMS)
       const opts = TRADE_ITEMS.map(
         (i) => `<option value="${i.slug}">${i.name}</option>`,
@@ -209,14 +193,6 @@
     let html = "";
 
     // Summary
-    const allTimers = getActiveTimers();
-    const queueUsed = allTimers.filter(
-      (t) => t.callbackType === "completeConstruction",
-    ).length;
-    const queueLabel = buildingQueueMax
-      ? `${queueUsed}/${buildingQueueMax}`
-      : `${queueUsed}`;
-    const queueFull = buildingQueueMax && queueUsed >= buildingQueueMax;
     const consumption = summary.population + summary.troops * 2;
     const foodNet = production.food - consumption;
     const isGrowing = foodNet > 0;
@@ -227,7 +203,6 @@
       <span class="tom-stat">Pop <span class="tom-stat-value">${summary.population}/${summary.populationCapacity}</span></span>
       <span class="tom-stat">Troops <span class="tom-stat-value">${summary.troops}/${summary.troopsCapacity}</span></span>
       <span class="tom-stat">Morale <span class="tom-stat-value">${summary.morale}%</span></span>
-      <span class="tom-stat">Queue <span class="tom-stat-value" style="color:${queueFull ? "#ef4444" : "#fff"}">${queueLabel}${queueFull ? " FULL" : ""}</span></span>
       <span class="tom-stat" title="${growthTooltip}">Growth <span class="tom-stat-value" style="color:${growthColor}">${growthLabel}</span></span>
     </div>`;
 
@@ -421,25 +396,6 @@
       html += `</div>`;
     }
 
-    // Research
-    const researchTimers = getActiveTimers().filter(
-      (t) => t.callbackType === "addResearchedTech",
-    );
-    if (researchTimers.length > 0) {
-      const now = Math.floor(Date.now() / 1000);
-      html += `<div class="tom-construction" style="border-left-color:#a855f7;">`;
-      html += `<div class="tom-section-title">Research</div>`;
-      for (const t of researchTimers) {
-        const remaining = (t.timestamp || 0) - now;
-        const name = t.label.replace(/^Researching\s+/i, "");
-        html += `<div class="tom-row">
-          <span class="tom-row-label"><span class="tom-row-cat tom-cat-crafting"></span>${name}</span>
-          <span class="tom-row-value">${formatCountdown(remaining)}</span>
-        </div>`;
-      }
-      html += `</div>`;
-    }
-
     // Under construction
     if (underConstruction.length > 0) {
       html += `<div class="tom-construction">`;
@@ -577,14 +533,11 @@
     const craftTab = document.getElementById("tom-tab-crafting");
     const prevSearch = craftTab.querySelector("#tom-craft-search")?.value || "";
     craftTab.innerHTML = `
-      <div id="tom-aq-section" class="tom-aq-section"></div>
       <div style="padding:4px 0 6px">
         <input id="tom-craft-search" class="tom-craft-search" type="text" placeholder="Search recipes…" value="${prevSearch.replace(/"/g, "&quot;")}">
       </div>
       <div id="tom-craft-list">${craftHtml}</div>
     `;
-    lastCraftTimerKey = ""; // section was rebuilt, force full queue render
-    renderActiveCraftingQueue();
     const searchEl = document.getElementById("tom-craft-search");
     const listEl = document.getElementById("tom-craft-list");
     function applySearch(q) {

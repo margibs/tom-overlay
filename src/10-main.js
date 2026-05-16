@@ -28,7 +28,6 @@ function renderAll() {
   rebuildTilePositions();
   renderPanel(lastParsed);
   lastBadgeKey = ""; // force badge rebuild on data change
-  lastTimerBadgeKey = ""; // force timer badge rebuild on data change
   renderBadges(lastParsed);
   lastBuildingMap = lastParsed.buildingMap;
 }
@@ -36,7 +35,6 @@ function renderAll() {
 domReady(() => {
   injectStyles();
   initChatFilter();
-  initInventorySort();
   initBuildingSort();
   initCrafterSort();
   onTownData((data) => {
@@ -51,30 +49,4 @@ domReady(() => {
     }
     renderAll();
   });
-
-  // Update timer badges every second
-  timerInterval = setInterval(() => {
-    advanceTick();
-
-    if (!lastGridContainer) {
-      lastGridContainer = document.querySelector(".town-grid-content");
-    }
-    if (!lastGridContainer) return;
-
-    // Rebuild shared tile positions if needed
-    if (Object.keys(getSharedTilePositions()).length === 0) {
-      rebuildTilePositions();
-    }
-
-    checkExpiredTimers();
-    renderTimerBadges(
-      lastBuildingMap,
-      getSharedTilePositions(),
-      lastGridContainer,
-      lastParsed,
-    );
-
-    renderActiveCraftingQueue();
-  }, 1000);
 });
-

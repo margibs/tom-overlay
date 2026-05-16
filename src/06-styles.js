@@ -117,26 +117,6 @@ function injectStyles() {
       .tom-cat-military { background: #ef4444; }
       .tom-cat-crafting { background: #a855f7; }
       .tom-cat-infrastructure { background: #3b82f6; }
-      .tom-timer-badge {
-        position: absolute;
-        background: none;
-        pointer-events: none;
-        z-index: 2147483646;
-        transform: translateX(-50%);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-      }
-      .tom-badge-time {
-        font-family: 'Work Sans', system-ui, sans-serif;
-        color: #fff;
-        font-size: 7px;
-        font-weight: 700;
-        white-space: nowrap;
-        text-align: center;
-        text-shadow: 0 1px 2px rgba(0,0,0,0.8), 0 0 4px rgba(0,0,0,0.5);
-        margin-bottom: 1px;
-      }
       .tom-pop-card {
         background: rgba(255,255,255,0.05);
         border-radius: 4px;
@@ -372,33 +352,6 @@ function injectStyles() {
       }
       .tom-trade-gold-btn:hover { background: rgba(251,191,36,0.3); }
       .tom-trade-gold-ref { font-size: 10px; color: #555; margin-bottom: 8px; }
-      .tom-aq-section { margin-bottom: 6px; }
-      .tom-aq-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        font-size: 11px;
-        font-weight: 700;
-        color: #a855f7;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        cursor: pointer;
-        padding: 3px 0;
-        user-select: none;
-      }
-      .tom-aq-header:hover { color: #c084fc; }
-      .tom-aq-body { margin-top: 2px; }
-      .tom-aq-body.collapsed { display: none; }
-      .tom-aq-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 2px 0;
-        border-bottom: 1px solid rgba(255,255,255,0.05);
-        font-size: 11px;
-      }
-      .tom-aq-label { color: #ccc; flex: 1; margin-right: 8px; }
-      .tom-aq-time { color: #fbbf24; font-weight: 700; font-variant-numeric: tabular-nums; }
       .tom-market-empty { color: #555; font-size: 11px; padding: 8px 0; }
       .tom-offers-count {
         display: inline-block;
@@ -445,25 +398,6 @@ function injectStyles() {
       .tom-market-sides > div { display: flex; align-items: center; gap: 4px; }
       .tom-market-item { font-size: 11px; color: #e0e0e0; flex: 1; }
       .tom-market-wm   { font-size: 10px; color: #666; flex-shrink: 0; }
-
-      /* Inventory sort bar */
-      .tom-inv-sort-bar {
-        display: flex; gap: 4px; padding: 4px 8px 8px; flex-wrap: wrap;
-      }
-      .tom-inv-sort-btn {
-        background: rgba(255,255,255,0.1); color: #ccc; border: none;
-        padding: 3px 10px; border-radius: 12px; font-size: 11px;
-        cursor: pointer; font-family: 'Work Sans', system-ui, sans-serif;
-        transition: background 0.15s, color 0.15s;
-      }
-      .tom-inv-sort-btn:hover { background: rgba(255,255,255,0.18); color: #fff; }
-      .tom-inv-sort-btn.active { background: #fbbf24; color: #1a1a1a; font-weight: 600; }
-      .tom-inv-cat-divider {
-        grid-column: 1 / -1; font-size: 10px; color: #fbbf24; opacity: 0.8;
-        padding: 6px 4px 2px; font-family: 'Work Sans', system-ui, sans-serif;
-        font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase;
-        border-bottom: 1px solid rgba(251,191,36,0.15);
-      }
 
       /* Building sort toolbar */
       .tom-bld-toolbar {
